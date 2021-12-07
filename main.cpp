@@ -13,18 +13,25 @@ struct anod{
     struct nod *dr;
 };
 
-struct snod{
-
+struct nodOpr {
     char val[100];
-    snod * urm;
-
+    nodOpr * urm;
 };
 
-struct stiva{
+struct nodOpd {
+    anod * nod;
+    nodOpd * urm;
+};
 
-    snod* varf;
+struct stivaOpr{
+    nodOpr* varf;
     int nrElemente;
-}S;
+}Opr;
+
+struct stivaOpd{
+    nodOpd* varf;
+    int nrElemente = 0;
+}Opd;
 
 struct expr{
 
@@ -35,39 +42,34 @@ struct expr{
 
 //-------------- functii stiva --------------//
 
-void init(stiva s) {
-
-    s.varf = NULL;
-    s.nrElemente = 0;
-}
-
-char* pop(stiva &s) {
+char* popOpr(stivaOpr &s) {
     char *val;
     strcpy(val, s.varf->val);
 
-    snod* varf_nou = s.varf -> urm;
+    nodOpr* varf_nou = s.varf -> urm;
 
     delete s.varf;
-
+git p
     s.varf = varf_nou;
     s.nrElemente--;
     return val;
 }
 
-void push(stiva &s, char* val) {
+
+void pushOpr(stivaOpr &s, char* val) {
 
     if(s.nrElemente == 0) {
 
         s.nrElemente = 1;
-        s.varf = new snod;
+        s.varf = new nodOpr;
         //s.varf -> val = elem;
         strcpy(s.varf->val, val);
         s.varf -> urm = NULL;
     }
 
     else {
-        snod* nod_nou;
-        nod_nou = new snod;
+        nodOpr* nod_nou;
+        nod_nou = new nodOpr;
 
         s.nrElemente++;
 
