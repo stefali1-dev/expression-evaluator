@@ -29,7 +29,7 @@ struct stiva{
 struct expr{
 
     char tokenArr[N][100];
-    int ArrLen;
+    int ArrLen = 0;
 
 }E;
 
@@ -102,10 +102,11 @@ void extragereCuv(char tokenArr[][100], char exp[]){
                 cuv[n++] = exp[p];
             }
             cuv[n] = '\0';
+           
+             if(i != j)
+                strcpy(tokenArr[E.ArrLen++], cuv);
 
             i = j+1;
-
-            strcpy(tokenArr[E.ArrLen++], cuv);
 
             tokenArr[E.ArrLen][0] = exp[j];
             tokenArr[E.ArrLen][1] = '\0';
