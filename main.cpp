@@ -1,8 +1,112 @@
 #include <iostream>
 #include <string.h>
 #include <stdio.h>
+#include <math.h>
 #define N 10000
+#define infinit INT_MAX
+#define epsi 0.0001
 using namespace std;
+
+
+// ------------ functii matematice -----------//
+
+bool DifInf(float x)
+{
+    return fabs(infinit-fabs(x)) > infinit / 2.0;
+}
+
+float Logaritm(float x)
+{
+    if (x>epsi && DifInf(x))
+        return log(x);
+    else
+        return infinit;
+}
+
+float Exponential(float x)
+{
+    if (DifInf(x)) return exp(x);
+    else return infinit;
+}
+
+float Inmultit(float x, float y)
+{
+    if (fabs(x < epsi) || fabs(y) < epsi) return 0;
+        else if (DifInf(x) && DifInf(y)) return x*y;
+            else return infinit;
+}
+
+float Putere(float x, float y)
+{
+    // float p;
+    if (x==0) return 0;
+    else if (y==0) return 1;
+    else if (x==infinit || y==infinit) return infinit;
+    else
+        return pow(x,y);
+}
+
+float Egal(float x, float y)
+{
+    return x==y;
+}
+
+float Diferit(float x, float y)
+{
+    return x!=y;
+}
+
+float MaiMic(float x, float y)
+{
+    return x < y;
+}
+
+bool MaiMare(float x, float y)
+{
+    return x > y;
+}
+
+float Plus(float x, float y)
+{
+    if (DifInf(x) && DifInf(y))  return x+y;
+    else return infinit;
+}
+
+float Minus(float x, float y)
+{
+    if (DifInf(x) && DifInf(y))  return x-y;
+    else return infinit;
+}
+
+float Impartit(float x, float y)
+{
+    if (fabs(y)>epsi) return x/y;
+    else return infinit;
+}
+
+float Sinus(float x)
+{
+    if (DifInf(x))  return sin(x);
+    else return infinit;
+}
+
+float Cosinus(float x)
+{
+    if (DifInf(x))  return cos(x);
+    else return infinit;
+}
+
+float Modul(float x)
+{
+    if (DifInf(x)) return fabs(x);
+    else return infinit;
+}
+
+float Radical(float x)
+{
+    if (DifInf(x) && (x>epsi)) return sqrt(x);
+    else return infinit;
+}
 
 // ------------ structuri ----------//
 
@@ -10,8 +114,8 @@ struct anod
 {
 
     char val[100];
-    struct nod *st;
-    struct nod *dr;
+    anod *st;
+    anod *dr;
 };
 
 struct nodOpr
@@ -30,17 +134,16 @@ struct stivaOpr
 {
     nodOpr* varf;
     int nrElemente;
-} Opr;
+} Opr, tempOpr;
 
 struct stivaOpd
 {
     nodOpd* varf;
     int nrElemente = 0;
-} Opd;
+} Opd, tempOpd;
 
 struct expr
 {
-
     char tokenArr[N][100];
     int ArrLen = 0;
 
@@ -54,20 +157,23 @@ void initOpr(stivaOpr &s)
     s.nrElemente = 0;
 }
 
-char* popOpr(stivaOpr &s)
+char* topOpr(stivaOpr s)
 {
     char *val;
-    strcpy(val, s.varf->val);
-    nodOpr* varf_nou = s.varf -> urm;
-    delete s.varf;
-
-    s.varf = varf_nou;
-    s.nrElemente--;
+    strcpy(val, s.varf -> val);
     return val;
 }
 
+void popOpr(stivaOpr &s)
+{
+    nodOpr* varf_nou = s.varf -> urm;
+    delete s.varf;
+    s.varf = varf_nou;
+    s.nrElemente--;
+}
 
-void pushOpr(stivaOpr &s, char* val)
+
+void pushOpr(stivaOpr &s, char val[])
 {
 
     if(s.nrElemente == 0)
@@ -88,7 +194,7 @@ void pushOpr(stivaOpr &s, char* val)
         s.nrElemente++;
 
         //nod_nou -> val = elem;
-        strcpy(nod_nou->val, val);
+        strcpy(nod_nou -> val, val);
         nod_nou -> urm = s.varf;
         s.varf = nod_nou;
     }
@@ -101,16 +207,19 @@ void initOpd(stivaOpd &s)
     s.nrElemente = 0;
 }
 
-anod* popOpd(stivaOpd &s)
+anod* topOpd(stivaOpd s)
 {
     anod *nod;
     nod = s.varf -> nod;
+    return nod;
+}
+
+void popOpd(stivaOpd &s)
+{
     nodOpd* varf_nou = s.varf -> urm;
     delete s.varf;
-
     s.varf = varf_nou;
     s.nrElemente--;
-    return nod;
 }
 
 void pushOpd(stivaOpd &s, anod* nod)
@@ -143,12 +252,10 @@ void pushOpd(stivaOpd &s, anod* nod)
 
 void printOpr(stivaOpr Opr)
 {
-    int k = 0;
-    while(k < Opr.nrElemente)
+    while(Opr.varf)
     {
         cout << Opr.varf -> val << endl;
         Opr.varf = Opr.varf -> urm;
-        k++;
     }
     cout << endl;
 }
@@ -159,7 +266,7 @@ void printOpd(stivaOpd Opd)
     nod_nou = Opd.varf;
     while(nod_nou)
     {
-        cout << nod_nou ->nod ->val << endl;
+        cout << nod_nou -> nod -> val << endl;
         nod_nou = nod_nou ->urm;
     }
 }
@@ -177,10 +284,25 @@ bool esteSeparator(char c)
 bool esteFunctie(char s[])
 {
     char functii[30][7] = {"sin", "cos", "abs", "exp", "ln", "sqrt"};
+    //mai trebuie adaugate
     for(int i=0; i<6; i++)
         if(!strcmp(functii[i],s))
             return true;
     return false;
+    //aici in loc de bool ar merge o functie tip int care returneaza i in loc de true si -1 cand e fals
+    //ca in calculul expresiei sa luam switch(esteFunctie(val)) {case 0 pt sin case 1 pt cos etc)
+}
+
+bool esteNumar(char s[])
+{
+    if(strchr("0123456789",s[0]))
+        return 1;
+}
+int aritateOperator(char s[])
+{
+    if(esteFunctie(s))
+        return 1;
+    return 2;
 }
 
 void extragereCuv(char tokenArr[][100], char exp[])
@@ -215,12 +337,10 @@ void extragereCuv(char tokenArr[][100], char exp[])
     E.ArrLen--;
 }
 
-
 void formareStive(expr E)
 {
     initOpr(Opr); initOpd(Opd);
-    pushOpr(Opr, "(");
-
+    //pushOpr(Opr, "(");
     int i=0;
     while (i < E.ArrLen)
     {
@@ -237,8 +357,114 @@ void formareStive(expr E)
         }
         i++;
     }
-    pushOpr(Opr, ")");
+    //pushOpr(Opr, ")");
 }
+
+int Prioritate(char c)  // prioritate operatorilor
+{
+    if(c=='(' || c==')')
+        return 0;
+    if(c=='+' || c=='-')
+        return 1;
+    if(c=='*' || c=='/')
+        return 2;
+    if(c=='^')
+        return 3;
+    if(c=='=' || c=='#' || c=='<' || c=='>')
+        return 4;
+    if(c=='c' || c=='s' || c=='l' || c=='e' || c=='t' || c=='a' || c=='r')
+        return 5;
+}
+//-------------- functii pt formare arbore ------------//
+
+void creareArbore()
+{
+    while(Opr.varf) {
+        if(!(strcmp(Opr.varf -> val, "(") || strcmp(Opr.varf -> val, ")")))
+            popOpr(Opr);
+        char val[20];
+        strcpy(val, Opr.varf -> val);
+        switch(aritateOperator(val)) {
+            case 1: {
+                anod* nodTemp;
+                nodTemp = new anod;
+                nodTemp -> st = topOpd(Opd);
+                nodTemp -> dr = NULL;
+                popOpd(Opd);
+                strcpy(nodTemp -> val, Opr.varf -> val);
+                //nou bloc
+                pushOpd(Opd, nodTemp);
+                break;
+            }
+            case 2: {
+                anod* nodTemp;
+                nodTemp = new anod;
+                nodTemp -> dr = topOpd(Opd);
+                popOpd(Opd);
+                nodTemp -> st = topOpd(Opd);
+                popOpd(Opd);
+                strcpy(nodTemp -> val, Opr.varf -> val);
+                //nou bloc
+                pushOpd(Opd, nodTemp);
+                break;
+            }
+        }
+    Opr.varf = Opr.varf -> urm;
+    }
+}
+
+float valoareExpresie(anod* nod, int x)
+{
+    char val[20];
+    strcpy(val, nod -> val);
+    if(esteNumar(val)) {
+        return atof(val);
+    }
+
+    switch(val[0]) {
+        case '+': {
+            return Plus(valoareExpresie(nod -> st,x), valoareExpresie(nod -> dr,x));
+            break;
+        }
+        case '-': {
+            return Minus(valoareExpresie(nod -> st,x), valoareExpresie(nod -> dr,x));
+            break;
+        }
+        case '*': {
+            return Inmultit(valoareExpresie(nod -> st,x), valoareExpresie(nod -> dr,x));
+            break;
+        }
+        case '^': {
+            return Putere(valoareExpresie(nod -> st,x), valoareExpresie(nod -> dr,x));
+            break;
+        }
+        case '/': {
+            return Impartit(valoareExpresie(nod -> st,x), valoareExpresie(nod -> dr,x));
+            break;
+        }
+        case '=': {
+            return Egal(valoareExpresie(nod -> st,x), valoareExpresie(nod -> dr,x));
+            break;
+        }
+        case '>': {
+            return MaiMare(valoareExpresie(nod -> st,x), valoareExpresie(nod -> dr,x));
+            break;
+        }
+        case '<': {
+            return MaiMic(valoareExpresie(nod -> st,x), valoareExpresie(nod -> dr,x));
+            break;
+        }
+        case '#': {
+            return Diferit(valoareExpresie(nod -> st,x), valoareExpresie(nod -> dr,x));
+            break;
+        }
+        case 'x': {
+            return x;
+            break;
+        }
+    }
+}
+//-------------- main --------------//
 
 int main()
 {
@@ -247,33 +473,33 @@ int main()
     cin.getline(exp, N-1);
 
     extragereCuv(E.tokenArr, exp);
-
-
-    //for(int i=0; i<E.ArrLen; i++){
-    //    cout << endl << E.tokenArr[i];
-    //}
-
-    
     formareStive(E);
+    //-------- Test extragereCuv -------//
+    /*
+    for(int i=0; i<E.ArrLen; i++){
+        cout << endl << E.tokenArr[i];
+    }
+    cout << endl;
+    */
+
+    //------- Test stive -------//
+    /*
     cout << "Operatorii:\n";
     printOpr(Opr);
+
     cout << "\nOperanzii:\n";
     printOpd(Opd);
-
-    /* Testare Opd
-    anod *nod_nou;
-    nod_nou = new anod;
-    strcpy(nod_nou ->val, "sal");
-    initOpd(Opd);
-    pushOpd(Opd, nod_nou);
-    printOpd(Opd);
     */
 
-    /* Testare Opr
-    initOpr(Opr);
-    pushOpr(Opr, "salll");
-    printOpr(Opr);
-    */
-
+    //------- Test valoare (foarte simplu) -------//
+    creareArbore();
+    int x, rez;
+    cout << "Introduceti valoarea lui x:\n";
+    cin >> x;
+    anod* nod;
+    nod = topOpd(Opd);
+    //prioritatea operatorilor NU este implementata inca
+    rez = valoareExpresie(nod,x);
+    cout << endl << rez;
     return 0;
 }
