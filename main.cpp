@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include <winbgim.h>
+#include <graphics.h>
 #define N 10000
 #define infinit INT_MAX
 #define epsi 0.0001
@@ -9,6 +11,10 @@ using namespace std;
 
 
 // ------------ functii matematice -----------//
+
+const float p = 3.1415926536;
+const float e = 2.7182818284;
+const float phi = 1.6180339887;
 
 bool DifInf(float x)
 {
@@ -149,6 +155,19 @@ struct expr
 
 } E;
 
+struct variabila
+{
+    char nume[100];
+    float valoare;
+};
+
+struct listaVar
+{
+    variabila var[100];
+    int nrElemente;
+} L;
+//lista liniara cu variabile
+
 //-------------- functii stiva --------------//
 
 void initOpr(stivaOpr &s)
@@ -171,7 +190,6 @@ void popOpr(stivaOpr &s)
     s.varf = varf_nou;
     s.nrElemente--;
 }
-
 
 void pushOpr(stivaOpr &s, char val[])
 {
@@ -281,24 +299,42 @@ bool esteSeparator(char c)
     return false;
 }
 
-bool esteFunctie(char s[])
+int esteFunctie(char s[])
 {
     char functii[30][7] = {"sin", "cos", "abs", "exp", "ln", "sqrt"};
     //mai trebuie adaugate
     for(int i=0; i<6; i++)
-        if(!strcmp(functii[i],s))
-            return true;
-    return false;
-    //aici in loc de bool ar merge o functie tip int care returneaza i in loc de true si -1 cand e fals
-    //ca in calculul expresiei sa luam switch(esteFunctie(val)) {case 0 pt sin case 1 pt cos etc)
+        if(strcmp(functii[i],s) == 0)
+            return i+1;
+    return 0;
 }
 
 bool esteNumar(char s[])
 {
-    if(strchr("0123456789",s[0]))
-        return 1;
+    if(strchr("0123456789",s[0]) && s[0] != '\0')
+        return true;
+    return false;
 }
-int aritateOperator(char s[])
+
+float esteConst(char s[])
+{
+    if(strcmp(s, "p") == 0)
+        return p;
+    if(strcmp(s, "e") == 0)
+        return e;
+    if(strcmp(s, "phi") == 0)
+        return phi;
+    return 0;
+}
+
+bool esteVar(char s[])
+{
+    if(!(esteFunctie(s)) && !(esteNumar(s)) && !(esteSeparator(s[0])) && !(esteConst(s)))
+        return true;
+    return false;
+}
+
+int aritate(char s[])
 {
     if(esteFunctie(s))
         return 1;
@@ -309,13 +345,12 @@ void extragereCuv(char tokenArr[][100], char exp[])
 {
     char cuv[N];
     int len = strlen(exp);
-
+    strcpy(tokenArr[E.ArrLen], "(");
+    E.ArrLen++;
     for(int j=0,i=0; j<=len; j++)
     {
-
         if(esteSeparator(exp[j]))
         {
-
             int n=0;
             for(int p=i; p<j; p++)
             {
@@ -333,11 +368,29 @@ void extragereCuv(char tokenArr[][100], char exp[])
             E.ArrLen++;
         }
     }
-
     E.ArrLen--;
+    strcpy(tokenArr[E.ArrLen], ")");
+    E.ArrLen++;
 }
 
-void formareStive(expr E)
+int prioritate(char s[])  // prioritate operatorilor
+{
+    if(esteSeparator(s[0])) {
+        if(s[0]=='(' || s[0]==')')
+            return 0;
+        if(s[0]=='+' || s[0]=='-')
+            return 1;
+        if(s[0]=='*' || s[0]=='/')
+            return 2;
+        if(s[0]=='^')
+            return 3;
+        if(s[0]=='=' || s[0]=='#' || s[0]=='<' || s[0]=='>')
+            return 4;
+    }
+    return 5;
+}
+
+void vechi_formareStive(expr E)
 {
     initOpr(Opr); initOpd(Opd);
     //pushOpr(Opr, "(");
@@ -360,110 +413,228 @@ void formareStive(expr E)
     //pushOpr(Opr, ")");
 }
 
-int Prioritate(char c)  // prioritate operatorilor
+void formareStive(expr E)
 {
-    if(c=='(' || c==')')
-        return 0;
-    if(c=='+' || c=='-')
-        return 1;
-    if(c=='*' || c=='/')
-        return 2;
-    if(c=='^')
-        return 3;
-    if(c=='=' || c=='#' || c=='<' || c=='>')
-        return 4;
-    if(c=='c' || c=='s' || c=='l' || c=='e' || c=='t' || c=='a' || c=='r')
-        return 5;
+    initOpr(Opr); initOpd(Opd);
+    pushOpr(Opr, "(");
+    int i = 0;
+    while (i<E.ArrLen && Opr.varf != NULL)
+    {
+        if (esteNumar(E.tokenArr[i]) || esteVar(E.tokenArr[i]) || esteConst(E.tokenArr[i]))
+        {
+            anod *nod_nou;
+            nod_nou = new anod;
+            strcpy(nod_nou -> val, E.tokenArr[i]);
+            pushOpd(Opd, nod_nou);
+        }
+        else
+            switch (E.tokenArr[i][0]) {
+            case '(': /* inceput de bloc */ pushOpr(Opr, "("); break;
+            default: {
+                char val[100];
+                strcpy(val, Opr.varf -> val);
+                /* operatii binare si unare */
+               while ((Opr.varf != NULL) && !(strchr("()",val[0])) && prioritate(val) >= prioritate(E.tokenArr[i]))
+                {
+                    anod *nodst, *noddr, *nod;
+                    noddr = Opd.varf -> nod;
+                    nodst = Opd.varf -> urm -> nod;
+                    nod = new anod;
+                    strcpy(nod -> val, val);
+                    nod -> st = nodst;
+                    nod -> dr = noddr;
+                    if(aritate(val) == 2) popOpd(Opd);
+                    if(esteSeparator(val[0]) || esteFunctie(val)) {
+                        popOpd(Opd);
+                        pushOpd(Opd,nod);
+                    }
+                    popOpr(Opr);
+                }
+            }
+            // depanare();
+            if (Opr.varf != NULL)
+                if((strcmp(Opr.varf -> val, "(") != 0) || (strcmp(E.tokenArr[i],")") != 0))
+                    {
+                        pushOpr(Opr, E.tokenArr[i]);
+                    }
+                else popOpr(Opr);
+            }
+        i++;
+    }
+}
+
+//-------------- functii pt variabile ------------//
+
+int dejaExista(char s[], listaVar L)
+{
+    //verifica daca deja am dat valoarea variabilei cu numele salvat in s
+    //variabile sunt salvate ca o lista liniara practic, iar aceasta functie va returna indicele variabilei cu numele salvat in s in lista L
+    for(int i = 0; i < L.nrElemente; i++)
+        if(strcmp(s, L.var[i].nume) == 0)
+            return i+1;
+    return 0;
+}
+
+float valoareVar(char s[], listaVar L)
+{
+    //returneaza valoarea variabilei cu numele salvat in s
+    return L.var[dejaExista(s,L) - 1].valoare;
+}
+
+void inserareVar(char s[], float numar, listaVar &L)
+{
+    //insereaza o noua variabila
+    strcpy(L.var[L.nrElemente].nume, s);
+    L.var[L.nrElemente].valoare = numar;
+    L.nrElemente++;
+}
+
+void cautaVar(expr E, listaVar &L)
+{
+    //cauta si defineste variabilele din expresia E
+    L.nrElemente = 0;
+    char s[100];
+    float numar;
+    for(int i = 0; i < E.ArrLen; i++) {
+        strcpy(s, E.tokenArr[i]);
+        //nu cred ca e necesar acest s intermediar dar verific altadata
+        if(esteVar(s) && !(dejaExista(s, L))) {
+            cout << "Introduceti valoarea variabilei " << s << ": ";
+            cin >> numar;
+            inserareVar(s, numar, L);
+        }
+    }
+}
+//functie pt testare
+void afisareVar(listaVar L)
+{
+    for(int i = 0; i < L.nrElemente; i++)
+        cout << "Variabila " << L.var[i].nume << " are valoarea " << L.var[i].valoare << "." << endl;
 }
 //-------------- functii pt formare arbore ------------//
 
 void creareArbore()
 {
     while(Opr.varf) {
-        if(!(strcmp(Opr.varf -> val, "(") || strcmp(Opr.varf -> val, ")")))
+        if(strcmp(Opr.varf -> val, "(") == 0 || strcmp(Opr.varf -> val, ")") == 0)
             popOpr(Opr);
-        char val[20];
-        strcpy(val, Opr.varf -> val);
-        switch(aritateOperator(val)) {
-            case 1: {
-                anod* nodTemp;
-                nodTemp = new anod;
-                nodTemp -> st = topOpd(Opd);
-                nodTemp -> dr = NULL;
-                popOpd(Opd);
-                strcpy(nodTemp -> val, Opr.varf -> val);
-                //nou bloc
-                pushOpd(Opd, nodTemp);
-                break;
+        else{
+            char val[20];
+            strcpy(val, Opr.varf -> val);
+            switch(aritate(val)) {
+                case 1: {
+                    anod* nodTemp;
+                    nodTemp = new anod;
+                    nodTemp -> dr = topOpd(Opd);
+                    nodTemp -> st = NULL;
+                    popOpd(Opd);
+                    strcpy(nodTemp -> val, Opr.varf -> val);
+                    //nou bloc
+                    pushOpd(Opd, nodTemp);
+                    break;
+                }
+                case 2: {
+                    anod* nodTemp;
+                    nodTemp = new anod;
+                    nodTemp -> dr = topOpd(Opd);
+                    popOpd(Opd);
+                    nodTemp -> st = topOpd(Opd);
+                    popOpd(Opd);
+                    strcpy(nodTemp -> val, Opr.varf -> val);
+                    //nou bloc
+                    pushOpd(Opd, nodTemp);
+                    break;
+                }
             }
-            case 2: {
-                anod* nodTemp;
-                nodTemp = new anod;
-                nodTemp -> dr = topOpd(Opd);
-                popOpd(Opd);
-                nodTemp -> st = topOpd(Opd);
-                popOpd(Opd);
-                strcpy(nodTemp -> val, Opr.varf -> val);
-                //nou bloc
-                pushOpd(Opd, nodTemp);
-                break;
-            }
+        Opr.varf = Opr.varf -> urm;
         }
-    Opr.varf = Opr.varf -> urm;
     }
 }
 
-float valoareExpresie(anod* nod, int x)
+float valoareExpresie(anod* nod, listaVar L)
 {
     char val[20];
     strcpy(val, nod -> val);
     if(esteNumar(val)) {
         return atof(val);
     }
-
-    switch(val[0]) {
-        case '+': {
-            return Plus(valoareExpresie(nod -> st,x), valoareExpresie(nod -> dr,x));
+    if(esteConst(val)) {
+        return esteConst(val);
+    }
+    if(esteVar(val)) {
+        return valoareVar(val, L);
+    }
+    if(aritate(val) == 2) {
+           switch(val[0]) {
+            case '+': {
+                return Plus(valoareExpresie(nod -> st, L), valoareExpresie(nod -> dr, L));
+                break;
+            }
+            case '-': {
+                return Minus(valoareExpresie(nod -> st, L), valoareExpresie(nod -> dr, L));
+                break;
+            }
+            case '*': {
+                return Inmultit(valoareExpresie(nod -> st, L), valoareExpresie(nod -> dr, L));
+                break;
+            }
+            case '^': {
+                return Putere(valoareExpresie(nod -> st, L), valoareExpresie(nod -> dr, L));
+                break;
+            }
+            case '/': {
+                return Impartit(valoareExpresie(nod -> st, L), valoareExpresie(nod -> dr, L));
+                break;
+            }
+            case '=': {
+                return Egal(valoareExpresie(nod -> st, L), valoareExpresie(nod -> dr, L));
+                break;
+            }
+            case '>': {
+                return MaiMare(valoareExpresie(nod -> st, L), valoareExpresie(nod -> dr, L));
+                break;
+            }
+            case '<': {
+                return MaiMic(valoareExpresie(nod -> st, L), valoareExpresie(nod -> dr, L));
+                break;
+            }
+            case '#': {
+                return Diferit(valoareExpresie(nod -> st, L), valoareExpresie(nod -> dr, L));
+                break;
+            }
+        }
+    }
+    else switch(esteFunctie(val)) {
+        //"sin", "cos", "abs", "exp", "ln", "sqrt"
+        case 1: {
+            return Sinus(valoareExpresie(nod -> dr, L));
             break;
         }
-        case '-': {
-            return Minus(valoareExpresie(nod -> st,x), valoareExpresie(nod -> dr,x));
+        case 2: {
+            return Cosinus(valoareExpresie(nod -> dr, L));
             break;
         }
-        case '*': {
-            return Inmultit(valoareExpresie(nod -> st,x), valoareExpresie(nod -> dr,x));
+        case 3: {
+            return Modul(valoareExpresie(nod -> dr, L));
             break;
         }
-        case '^': {
-            return Putere(valoareExpresie(nod -> st,x), valoareExpresie(nod -> dr,x));
+        case 4: {
+            return Exponential(valoareExpresie(nod -> dr, L));
             break;
         }
-        case '/': {
-            return Impartit(valoareExpresie(nod -> st,x), valoareExpresie(nod -> dr,x));
+        case 5: {
+            return Logaritm(valoareExpresie(nod -> dr, L));
             break;
         }
-        case '=': {
-            return Egal(valoareExpresie(nod -> st,x), valoareExpresie(nod -> dr,x));
-            break;
-        }
-        case '>': {
-            return MaiMare(valoareExpresie(nod -> st,x), valoareExpresie(nod -> dr,x));
-            break;
-        }
-        case '<': {
-            return MaiMic(valoareExpresie(nod -> st,x), valoareExpresie(nod -> dr,x));
-            break;
-        }
-        case '#': {
-            return Diferit(valoareExpresie(nod -> st,x), valoareExpresie(nod -> dr,x));
-            break;
-        }
-        case 'x': {
-            return x;
+        case 6: {
+            return Radical(valoareExpresie(nod -> dr, L));
             break;
         }
     }
 }
+
+//-------------- functii pt desenare arbore -----------//
+
 //-------------- main --------------//
 
 int main()
@@ -471,12 +642,14 @@ int main()
 
     char exp[N];
     cin.getline(exp, N-1);
-
     extragereCuv(E.tokenArr, exp);
-    formareStive(E);
+    cautaVar(E, L);
+    vechi_formareStive(E);
+    creareArbore();
+    //formareStive(E);
     //-------- Test extragereCuv -------//
     /*
-    for(int i=0; i<E.ArrLen; i++){
+    for(int i=0; i < E.ArrLen; i++){
         cout << endl << E.tokenArr[i];
     }
     cout << endl;
@@ -491,15 +664,17 @@ int main()
     printOpd(Opd);
     */
 
+    //------- Test variabile ------//
+    /*
+    afisareVar(L);
+    */
+
     //------- Test valoare (foarte simplu) -------//
-    creareArbore();
-    int x, rez;
-    cout << "Introduceti valoarea lui x:\n";
-    cin >> x;
+
     anod* nod;
     nod = topOpd(Opd);
-    //prioritatea operatorilor NU este implementata inca
-    rez = valoareExpresie(nod,x);
-    cout << endl << rez;
+    float rez;
+    rez = valoareExpresie(nod, L);
+    cout<< endl << rez;
     return 0;
 }
