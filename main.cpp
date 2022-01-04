@@ -7,6 +7,8 @@
 #define N 10000
 #define infinit INT_MAX
 #define epsi 0.00001
+#define W 900
+#define H 700
 using namespace std;
 
 
@@ -1076,6 +1078,81 @@ void parcurgereInPreordine(arbore A)
     }
 }
 
+//-----------------afisare arebore----------------//
+
+int inaltimeArb, latimeArb, inaltimeCel, latimeCel;
+
+struct Punct
+{
+    int x, y;
+};
+
+bool esteArboreNul(arbore A)
+{
+    return (A == NULL);
+}
+
+void initializareArb(arbore &A)
+{
+    if (!esteArboreNul(A))
+        A = NULL;
+}
+
+int nrNiveluri(arbore A)
+{
+    if(esteArboreNul(A))
+        return 0;
+    else
+    {
+        int n1 = nrNiveluri(A -> st);
+        int n2 = nrNiveluri(A -> dr);
+        return 1 + max(n1, n2);
+    }
+}
+
+int nrColoane(arbore A)
+{
+    if(esteArboreNul(A))
+        return 0;
+    else
+    {
+        int n1 = nrColoane(A -> st);
+        int n2 = nrColoane(A -> dr);
+        return 1 + n1 + n2;
+    }
+}
+
+void desenLinie(Punct pozAnt, Punct pozCurenta)
+{
+    if(pozAnt.x != -1 && pozAnt.y != -1)
+        line(pozAnt.x, pozAnt.y, pozCurenta.x, pozCurenta.y);
+}
+
+void desenNod(char sir[], Punct pozCurenta)
+{
+    int raza = 10 + max(textwidth(sir) / 2, textheight(sir) / 2);
+
+    fillellipse(pozCurenta.x, pozCurenta.y, raza, raza);
+    setcolor(BLACK);
+    outtextxy(pozCurenta.x - textwidth(sir) / 2, pozCurenta.y - textheight(sir) / 2, sir);
+    setcolor(WHITE);
+}
+
+void deseneaza(arbore A, Punct pozAnt, int niv, int col)
+{
+    if(!esteArboreNul(A))
+    {
+        Punct pozCurenta;
+        pozCurenta.x = (col + nrColoane(A -> st) + 1) * latimeCel - latimeCel / 2;
+        pozCurenta.y = niv * inaltimeCel - inaltimeCel / 2;
+
+        deseneaza(A -> st, pozCurenta, niv + 1, col);
+        deseneaza(A -> dr, pozCurenta, niv + 1, col + nrColoane(A -> st) + 1);
+        desenLinie(pozAnt, pozCurenta);
+        desenNod(A -> val, pozCurenta);
+    }
+}
+
 //-------------- main --------------//
 
 int main()
@@ -1102,6 +1179,21 @@ int main()
         float rezultat;
         rezultat = valoareExpresie(A, L);
         cout << rezultat;
+
+        // -- afisare arb -- //
+
+        inaltimeArb = nrNiveluri(A);
+        latimeArb = nrColoane(A);
+        inaltimeCel = H / inaltimeArb;
+        latimeCel = W / latimeArb;
+
+        initwindow(W, H);
+        setlinestyle(0, 0, 3);
+        setbkcolor(WHITE);
+
+        deseneaza(A, {-1, -1}, 1, 0);
+        getch();
+        closegraph();
     }
 
     return 0;
