@@ -12,11 +12,45 @@
 using namespace std;
 
 
-// ------------ functii matematice -----------//
+// ------------ constante matematice ------------ //
 
 const float p = 3.1415926536;
 const float e = 2.7182818284;
 const float phi = 1.6180339887;
+
+// ------------ operatii logice --------------//
+
+bool Not(float x)
+{
+    return !x;
+}
+
+bool And(float x, float y)
+{
+    return x && y;
+}
+
+bool Or(float x, float y)
+{
+    return x || y;
+}
+
+bool Nand(float x, float y)
+{
+    return !(x && y);
+}
+
+bool Nor(float x, float y)
+{
+    return !(x || y);
+}
+
+bool Xor(float x, float y)
+{
+    return ((x && !y) || (!x && y));
+}
+
+// ------------ operatii matematice simple ------------//
 
 bool DifInf(float x)
 {
@@ -108,35 +142,7 @@ float Rest(float x, float y)
     else return infinit;
 }
 
-bool Not(float x)
-{
-    return !x;
-}
-
-bool And(float x, float y)
-{
-    return x && y;
-}
-
-bool Or(float x, float y)
-{
-    return x || y;
-}
-
-bool Nand(float x, float y)
-{
-    return !(x && y);
-}
-
-bool Nor(float x, float y)
-{
-    return !(x || y);
-}
-
-bool Xor(float x, float y)
-{
-    return ((x && !y) || (!x && y));
-}
+// ----------------- functii matematice ----------------//
 
 float Sinus(float x)
 {
@@ -355,6 +361,20 @@ struct listaVar
 } L;
 //lista liniara cu variabile
 
+struct operatorLogic
+{
+    int id;
+    /*
+    id not = 0
+    id and = 1
+    id or = 2
+    id nand = 3
+    id nor = 4
+    id xor = 5
+    */
+    int len;
+};
+
 //-------------- functii stiva --------------//
 
 void initOpr(stivaOpr &s)
@@ -477,10 +497,63 @@ void printOpd(stivaOpd Opd)
 
 bool esteSeparator(char c)
 {
-    char separatori[20] = "()+-*/^=<>#";
+    char separatori[20] = "()+-*/^=<>#%";
     if(strchr(separatori, c))
         return true;
     return false;
+}
+
+operatorLogic esteOperatorLogic(char s[])
+{
+    operatorLogic op;
+    //returneaza id-ul si lungimea operatorului logic, folositor in extragereCuv
+    /*
+    id not = 1
+    id and = 2
+    id or = 3
+    id nand = 4
+    id nor = 5
+    id xor = 6
+    */
+    if(s[0] == 'N' && s[1] == 'O' && s[2] == 'T')
+        {
+            op.id = 1;
+            op.len = 3;
+            return op;
+        }
+    if(s[0] == 'A' && s[1] == 'N' && s[2] == 'D')
+        {
+            op.id = 2;
+            op.len = 3;
+            return op;
+        }
+    if(s[0] == 'O' && s[1] == 'R')
+        {
+            op.id = 3;
+            op.len = 2;
+            return op;
+        }
+    if(s[0] == 'N' && s[1] == 'A' && s[2] == 'N' && s[3] == 'D')
+        {
+            op.id = 4;
+            op.len = 4;
+            return op;
+        }
+    if(s[0] == 'N' && s[1] == 'O' && s[2] == 'R')
+        {
+            op.id = 5;
+            op.len = 3;
+            return op;
+        }
+    if(s[0] == 'X' && s[1] == 'O' && s[2] == 'R')
+        {
+            op.id = 6;
+            op.len = 3;
+            return op;
+        }
+    op.id = 0;
+    op.len = 0;
+    return op;
 }
 
 int esteFunctie(char s[])
@@ -508,6 +581,7 @@ bool esteNumar(char s[])
 
 float esteConst(char s[])
 {
+    //returneaza constanta in sine
     if(strcmp(s, "p") == 0)
         return p;
     if(strcmp(s, "e") == 0)
@@ -519,14 +593,14 @@ float esteConst(char s[])
 
 bool esteVar(char s[])
 {
-    if(!(esteFunctie(s)) && !(esteNumar(s)) && !(esteSeparator(s[0])) && !(esteConst(s)))
+    if(!(esteFunctie(s)) && !(esteNumar(s)) && !(esteSeparator(s[0])) && !(esteConst(s)) && !(esteOperatorLogic(s).id))
         return true;
     return false;
 }
 
 int aritate(char s[])
 {
-    if(esteFunctie(s))
+    if(esteFunctie(s) || !(strcmp(s, "NOT")))
         return 1;
     return 2;
 }
@@ -545,16 +619,17 @@ void eliminareSpatii(char exp[])
 
 void extragereCuv(char token[][100], char exp[])
 {
-    char cuv[N];
     eliminareSpatii(exp);
     int len = strlen(exp);
     //nu este foarte eficient sa iteram pe expresie de doua ori, trebuie imbunatatit
     for(int j=0, i=0; j <= len; j++)
     {
-        if(esteSeparator(exp[j]))
+        int OpL = esteOperatorLogic(exp+j).len;
+        if(esteSeparator(exp[j]) || OpL)
         {
             int n=0;
-            for(int p=i; p<j; p++)
+            char cuv[N] = "";
+            for(int p = i; p < j; p++)
             {
                 cuv[n++] = exp[p];
                 int aux = esteFunctie(cuv);
@@ -566,10 +641,11 @@ void extragereCuv(char token[][100], char exp[])
                         {
                             p++;
                             cuv[n++] = exp[p];
-                        } while(exp[p] != ']');
+                        }
+                        while(exp[p] != ']');
                     }
-                j = p+1;
-                break;
+                    j = p+1;
+                    break;
                 }
             }
             cuv[n] = '\0';
@@ -577,28 +653,33 @@ void extragereCuv(char token[][100], char exp[])
             if(i != j)
                 strcpy(token[E.lungime++], cuv);
 
-            i = j+1;
-
-            token[E.lungime][0] = exp[j];
-            if(exp[j] == '>' && exp[j+1] == '=')
+            if(OpL)
             {
-                token[E.lungime][1] = exp[j+1];
-                token[E.lungime][2] = '\0';
-                i++;
-                j++;
-            }
-            else if(exp[j] == '<' && exp[j+1] == '=')
-            {
-                token[E.lungime][1] = exp[j+1];
-                token[E.lungime][2] = '\0';
-                i++;
-                j++;
+                strncpy(token[E.lungime++], exp+j, OpL);
+                j += OpL - 1;
             }
             else
             {
-                token[E.lungime][1] = '\0';
-            }
+                token[E.lungime][0] = exp[j];
+                if(exp[j] == '>' && exp[j+1] == '=')
+                {
+                    token[E.lungime][1] = exp[j+1];
+                    token[E.lungime][2] = '\0';
+                    j++;
+                }
+                else if(exp[j] == '<' && exp[j+1] == '=')
+                {
+                    token[E.lungime][1] = exp[j+1];
+                    token[E.lungime][2] = '\0';
+                    j++;
+                }
+                else
+                {
+                    token[E.lungime][1] = '\0';
+                }
             E.lungime++;
+            }
+            i = j + 1;
         }
     }
     E.lungime--;
@@ -614,13 +695,15 @@ int prioritate(char s[])  // prioritate operatorilor
             return 0;
         if(s[0]=='+' || s[0]=='-')
             return 1;
-        if(s[0]=='*' || s[0]=='/')
+        if(s[0]=='*' || s[0]=='/' || s[0]=='%')
             return 2;
         if(s[0]=='^')
             return 3;
         if(s[0]=='=' || s[0]=='#' || s[0]=='<' || s[0]=='>')
             return 4;
     }
+    if(esteOperatorLogic(s).id && strcmp(s, "NOT"))
+        return 4;
     return 5;
 }
 
@@ -632,9 +715,9 @@ int tipToken(char s[])
         return 1;
     if(s[0] == ')')
         return 2;
-    if(strchr("+-", s[0]))
+    if(strchr("+-", s[0]) || !(strcmp(s, "NOT")))
         return 3;
-    if(strchr("*/^><=#", s[0]))
+    if(strchr("*/^><=#%", s[0]) || (esteOperatorLogic(s).id && strcmp(s, "NOT")))
         return 4;
     if(esteFunctie(s))
         return 5;
@@ -650,6 +733,8 @@ bool verifCorect(expr E)
     bool corect = true; //pt a verifica corectitudinea expresiei in sine, va fi returnat
     int i = 0;
     int len = 0; //vom avea nevoie de un "contor" aditional, intrucat lungimea sirului de token-uri nu coincide cu lungimea expresiei
+    int nrParanteze1 = 0;
+    int nrParanteze2 = 0;
     while(i < E.lungime-1)
     {
         ok = true;
@@ -665,12 +750,14 @@ bool verifCorect(expr E)
         {
             if(tipToken(E.token[i+1]) == 2 || tipToken(E.token[i+1]) == 4)
                 ok = false;
+            nrParanteze1++;
             break;
         }
         case 2:
         {
             if(tipToken(E.token[i+1]) == 1 || tipToken(E.token[i+1]) == 5 || tipToken(E.token[i+1]) == 6)
                 ok = false;
+            nrParanteze2++;
             break;
         }
         case 3:
@@ -711,6 +798,22 @@ bool verifCorect(expr E)
         }
         i++;
     }
+    int nr = nrParanteze1 - nrParanteze2;
+    if(nr == 1)
+        {
+            cout << "-Eroare: o paranteza nu a fost inchisa" << endl;
+            corect = false;
+        }
+    else if(nr > 1)
+        {
+            cout << "-Eroare: " << nr << " paranteze nu au fost inchise" << endl;
+            corect = false;
+        }
+    else if(nr < 0)
+        {
+            cout << "-Eroare : sunt prea multe paranteze de tip ')'";
+            corect = false;
+        }
     return corect;
 }
 
@@ -871,7 +974,7 @@ float valoareExpresie(arbore A, listaVar L)
     {
         return valoareVar(val, L);
     }
-    if(aritate(val) == 2)
+    if(esteSeparator(val[0]))
     {
         switch(val[0])
         {
@@ -922,6 +1025,47 @@ float valoareExpresie(arbore A, listaVar L)
         case '#':
         {
             return Diferit(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
+            break;
+        }
+        case '%':
+        {
+            return Rest(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
+            break;
+        }
+        }
+    }
+    else if(esteOperatorLogic(val).id)
+    {
+        switch(esteOperatorLogic(val).id)
+        {
+        case 1:
+        {
+            return Not(valoareExpresie(A -> dr, L));
+            break;
+        }
+        case 2:
+        {
+            return And(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
+            break;
+        }
+        case 3:
+        {
+            return Or(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
+            break;
+        }
+        case 4:
+        {
+            return Nand(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
+            break;
+        }
+        case 5:
+        {
+            return Nor(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
+            break;
+        }
+        case 6:
+        {
+            return Xor(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
             break;
         }
         }
@@ -1078,8 +1222,6 @@ void parcurgereInPreordine(arbore A)
     }
 }
 
-//-----------------afisare arebore----------------//
-
 int inaltimeArb, latimeArb, inaltimeCel, latimeCel;
 
 struct Punct
@@ -1162,13 +1304,13 @@ int main()
     extragereCuv(E.token, exp);
     //-------- Test extragereCuv -------//
 
-    /*
-    for(int i=0; i < E.lungime; i++)
+
+    for(int i=0; i < E.lungime-1; i++)
     {
         cout << endl << E.token[i];
     }
-    cout << endl;
-    */
+    cout << endl << endl;
+
 
     if(verifCorect(E))
     {
