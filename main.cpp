@@ -37,7 +37,7 @@ float Exponential(float x)
 
 float Inmultit(float x, float y)
 {
-    if (fabs(x < epsi) || fabs(y) < epsi) return 0;
+    if (fabs(x) < epsi || fabs(y) < epsi) return 0;
     else if (DifInf(x) && DifInf(y)) return x*y;
     else return infinit;
 }
@@ -144,7 +144,8 @@ float Radical(float x)
 {
     if (DifInf(x))
     {
-        if(sqrt(x) > epsi) return sqrt(x);
+        if(x < 0) return NAN;
+        else if(sqrt(x) > epsi) return sqrt(x);
         else return 0;
     }
     else return infinit;
@@ -436,11 +437,15 @@ bool esteSeparator(char c)
 
 int esteFunctie(char s[])
 {
-    char functii[30][20] = {"sin", "cos", "tan", "cot", "abs", "exp", "ln", "sqrt", "floor", "ceil", "round", "arcsin", "arccos", "arctan", "arccot", "sinh", "cosh", "tanh", "coth"};
+    char functii[30][20] = {"sin", "cos", "tan", "cot", "abs", "exp", "sqrt", "floor", "ceil", "round", "arcsin", "arccos", "arctan", "arccot", "sinh", "cosh", "tanh", "coth"};
     //mai trebuie adaugate
-    for(int i=0; i<19; i++)
+    for(int i=0; i<17; i++)
         if(strcmp(functii[i],s) == 0)
             return i+1;
+    if(strstr(s, "log["))
+        return 19;
+    if(strstr(s, "root["))
+        return 20;
     return 0;
 }
 
@@ -504,11 +509,19 @@ void extragereCuv(char token[][100], char exp[])
             for(int p=i; p<j; p++)
             {
                 cuv[n++] = exp[p];
-                //fara urmatoarea conditie, "sinx" este considerat un singur token in loc de doua
-                if(esteFunctie(cuv) && exp[p+1] != 'h')
+                int aux = esteFunctie(cuv);
+                if(aux && exp[p+1] != 'h')
                 {
-                    j = p+1;
-                    break;
+                    if(aux == 19 || aux == 20)
+                    {
+                        do
+                        {
+                            p++;
+                            cuv[n++] = exp[p];
+                        } while(exp[p] != ']');
+                    }
+                j = p+1;
+                break;
                 }
             }
             cuv[n] = '\0';
@@ -718,8 +731,7 @@ void formareArbore(expr E)
     while (i<E.lungime && Opr.varf != NULL)
     {
         // este operand
-        if (esteNumar(E.token[i]) || esteVar(E.token[i])
-                || esteConst(E.token[i]))
+        if (esteNumar(E.token[i]) || esteVar(E.token[i])|| esteConst(E.token[i]))
         {
             //cout << E.tokenArr[i] << " opd\n";
             anod *nod_nou;
@@ -847,7 +859,7 @@ float valoareExpresie(arbore A, listaVar L)
     }
     else switch(esteFunctie(val))
         {
-        //"sin", "cos", "tan", "cotan", "abs", "exp", "ln", "sqrt", "floor", "ceil", "round", "arcsin", "arccos", "arctan", "arccot", "sinh", "cosh", "tanh", "cotanh"
+        //"sin", "cos", "tan", "cotan", "abs", "exp", "sqrt", "floor", "ceil", "round", "arcsin", "arccos", "arctan", "arccot", "sinh", "cosh", "tanh", "cotanh", "log", "root"
         case 1:
         {
             return Sinus(valoareExpresie(A -> dr, L));
@@ -880,67 +892,105 @@ float valoareExpresie(arbore A, listaVar L)
         }
         case 7:
         {
-            return Logaritm(valoareExpresie(A -> dr, L));
+            return Radical(valoareExpresie(A -> dr, L));
             break;
         }
         case 8:
         {
-            return Radical(valoareExpresie(A -> dr, L));
+            return ParteIntreagaInf(valoareExpresie(A -> dr, L));
             break;
         }
         case 9:
         {
-            return ParteIntreagaInf(valoareExpresie(A -> dr, L));
+            return ParteIntreagaSup(valoareExpresie(A -> dr, L));
             break;
         }
         case 10:
         {
-            return ParteIntreagaSup(valoareExpresie(A -> dr, L));
+            return Rotunjit(valoareExpresie(A -> dr, L));
             break;
         }
         case 11:
         {
-            return Rotunjit(valoareExpresie(A -> dr, L));
+            return Arcsinus(valoareExpresie(A -> dr, L));
             break;
         }
         case 12:
         {
-            return Arcsinus(valoareExpresie(A -> dr, L));
+            return Arccosinus(valoareExpresie(A -> dr, L));
             break;
         }
         case 13:
         {
-            return Arccosinus(valoareExpresie(A -> dr, L));
+            return Arctangenta(valoareExpresie(A -> dr, L));
             break;
         }
         case 14:
         {
-            return Arctangenta(valoareExpresie(A -> dr, L));
+            return Arccotangenta(valoareExpresie(A -> dr, L));
             break;
         }
         case 15:
         {
-            return Arccotangenta(valoareExpresie(A -> dr, L));
+            return SinusHiper(valoareExpresie(A -> dr, L));
             break;
         }
         case 16:
         {
-            return SinusHiper(valoareExpresie(A -> dr, L));
+            return CosinusHiper(valoareExpresie(A -> dr, L));
             break;
         }
         case 17:
         {
-            return CosinusHiper(valoareExpresie(A -> dr, L));
+            return TangentaHiper(valoareExpresie(A -> dr, L));
             break;
         }
         case 18:
         {
-            return TangentaHiper(valoareExpresie(A -> dr, L));
+            return CotangentaHiper(valoareExpresie(A -> dr, L));
             break;
         }
         case 19:
         {
-            return CotangentaHiper(valoareExpresie(A -> dr, L));
+            char baza[100];
+            int i, j;
+            float b;
+            i = 4;
+            j = 0;
+            while(val[i] != ']')
+            {
+                baza[j] = val[i];
+                j++;
+                i++;
+            }
+            if(esteConst(baza))
+            {
+                b = esteConst(baza);
+            }
+            else b = atof(baza);
+            return Impartit(Logaritm(valoareExpresie(A -> dr, L)), Logaritm(b));
+            break;
+        }
+        case 20:
+        {
+            char baza[100];
+            int i, j;
+            float b;
+            i = 5;
+            j = 0;
+            while(val[i] != ']')
+            {
+                //root[x]
+                baza[j] = val[i];
+                j++;
+                i++;
+            }
+            if(esteConst(baza))
+            {
+                b = esteConst(baza);
+            }
+            else b = atof(baza);
+            return Putere(valoareExpresie(A -> dr, L), 1/b);
             break;
         }
         }
@@ -962,7 +1012,6 @@ void parcurgereInPreordine(arbore A)
 
 int main()
 {
-
     char exp[N];
     cin.getline(exp, N-1);
     extragereCuv(E.token, exp);
@@ -971,8 +1020,9 @@ int main()
     /*
     for(int i=0; i < E.lungime; i++)
     {
-        cout << endl << E.cuvinte[i];
+        cout << endl << E.token[i];
     }
+    cout << endl;
     */
 
     if(verifCorect(E))
