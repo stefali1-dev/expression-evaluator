@@ -62,14 +62,24 @@ float Diferit(float x, float y)
     return x != y;
 }
 
-float MaiMic(float x, float y)
+bool MaiMic(float x, float y)
 {
     return x < y;
+}
+
+bool MaiMicEgal(float x, float y)
+{
+    return x <= y;
 }
 
 bool MaiMare(float x, float y)
 {
     return x > y;
+}
+
+bool MaiMareEgal(float x, float y)
+{
+    return x >= y;
 }
 
 float Plus(float x, float y)
@@ -88,6 +98,42 @@ float Impartit(float x, float y)
 {
     if (fabs(y) > epsi) return x/y;
     else return infinit;
+}
+
+float Rest(float x, float y)
+{
+    if (DifInf(x) && fabs(y) > epsi) return fmod(x, y);
+    else return infinit;
+}
+
+bool Not(float x)
+{
+    return !x;
+}
+
+bool And(float x, float y)
+{
+    return x && y;
+}
+
+bool Or(float x, float y)
+{
+    return x || y;
+}
+
+bool Nand(float x, float y)
+{
+    return !(x && y);
+}
+
+bool Nor(float x, float y)
+{
+    return !(x || y);
+}
+
+bool Xor(float x, float y)
+{
+    return ((x && !y) || (!x && y));
 }
 
 float Sinus(float x)
@@ -532,7 +578,24 @@ void extragereCuv(char token[][100], char exp[])
             i = j+1;
 
             token[E.lungime][0] = exp[j];
-            token[E.lungime][1] = '\0';
+            if(exp[j] == '>' && exp[j+1] == '=')
+            {
+                token[E.lungime][1] = exp[j+1];
+                token[E.lungime][2] = '\0';
+                i++;
+                j++;
+            }
+            else if(exp[j] == '<' && exp[j+1] == '=')
+            {
+                token[E.lungime][1] = exp[j+1];
+                token[E.lungime][2] = '\0';
+                i++;
+                j++;
+            }
+            else
+            {
+                token[E.lungime][1] = '\0';
+            }
             E.lungime++;
         }
     }
@@ -569,7 +632,7 @@ int tipToken(char s[])
         return 2;
     if(strchr("+-", s[0]))
         return 3;
-    if(strchr("*/^", s[0]))
+    if(strchr("*/^><=#", s[0]))
         return 4;
     if(esteFunctie(s))
         return 5;
@@ -728,7 +791,7 @@ void formareArbore(expr E)
     int i = 0;
     pushOpr(Opr, "(");
 
-    while (i<E.lungime && Opr.varf != NULL)
+    while (i < E.lungime && Opr.varf != NULL)
     {
         // este operand
         if (esteNumar(E.token[i]) || esteVar(E.token[i])|| esteConst(E.token[i]))
@@ -842,11 +905,15 @@ float valoareExpresie(arbore A, listaVar L)
         }
         case '>':
         {
+            if(val[1] == '=')
+                return MaiMareEgal(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
             return MaiMare(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
             break;
         }
         case '<':
         {
+            if(val[1] == '=')
+                return MaiMicEgal(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
             return MaiMic(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
             break;
         }
@@ -959,6 +1026,7 @@ float valoareExpresie(arbore A, listaVar L)
             j = 0;
             while(val[i] != ']')
             {
+                //log[x]
                 baza[j] = val[i];
                 j++;
                 i++;
