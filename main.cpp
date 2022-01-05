@@ -6,7 +6,7 @@
 #include <graphics.h>
 #define N 10000
 #define infinit INT_MAX
-#define epsi 0.00001
+#define epsi 0.0001
 #define W 900
 #define H 700
 using namespace std;
@@ -14,38 +14,38 @@ using namespace std;
 
 // ------------ constante matematice ------------ //
 
-const float p = 3.1415926536;
+const float pi = 3.1415926536;
 const float e = 2.7182818284;
 const float phi = 1.6180339887;
 
 // ------------ operatii logice --------------//
 
-bool Not(float x)
+float Not(float x)
 {
     return !x;
 }
 
-bool And(float x, float y)
+float And(float x, float y)
 {
     return x && y;
 }
 
-bool Or(float x, float y)
+float Or(float x, float y)
 {
     return x || y;
 }
 
-bool Nand(float x, float y)
+float Nand(float x, float y)
 {
     return !(x && y);
 }
 
-bool Nor(float x, float y)
+float Nor(float x, float y)
 {
     return !(x || y);
 }
 
-bool Xor(float x, float y)
+float Xor(float x, float y)
 {
     return ((x && !y) || (!x && y));
 }
@@ -55,20 +55,6 @@ bool Xor(float x, float y)
 bool DifInf(float x)
 {
     return fabs(infinit-fabs(x)) > infinit / 2.0;
-}
-
-float Logaritm(float x)
-{
-    if (x>epsi && DifInf(x))
-        return log(x);
-    else
-        return infinit;
-}
-
-float Exponential(float x)
-{
-    if (DifInf(x)) return exp(x);
-    else return infinit;
 }
 
 float Inmultit(float x, float y)
@@ -120,13 +106,21 @@ bool MaiMareEgal(float x, float y)
 
 float Plus(float x, float y)
 {
-    if (DifInf(x) && DifInf(y))  return x+y;
+    if (DifInf(x) && DifInf(y))
+    {
+        if(fabs(x+y) > epsi) return x+y;
+        else return 0;
+    }
     else return infinit;
 }
 
 float Minus(float x, float y)
 {
-    if (DifInf(x) && DifInf(y))  return x-y;
+    if (DifInf(x) && DifInf(y))
+    {
+        if(fabs(x-y) > epsi) return x-y;
+        else return 0;
+    }
     else return infinit;
 }
 
@@ -143,6 +137,33 @@ float Rest(float x, float y)
 }
 
 // ----------------- functii matematice ----------------//
+
+float Logaritm(float x)
+{
+    if (x>epsi && DifInf(x))
+    {
+        if(fabs(log(x)) > epsi)
+            return log(x);
+        else return 0;
+    }
+    if(x < epsi && x > 0) return infinit;
+}
+
+float LogaritmBazaB(float x, float b)
+{
+    return Impartit(Logaritm(x), Logaritm(b));
+}
+
+float Exponential(float x)
+{
+    if (DifInf(x))
+    {
+        if(fabs(exp(x)) > epsi)
+            return exp(x);
+        else return 0;
+    }
+    else return infinit;
+}
 
 float Sinus(float x)
 {
@@ -198,11 +219,15 @@ float Radical(float x)
 {
     if (DifInf(x))
     {
-        if(x < 0) return NAN;
-        else if(sqrt(x) > epsi) return sqrt(x);
+        if(sqrt(x) > epsi || x < 0) return sqrt(x);
         else return 0;
     }
     else return infinit;
+}
+
+float RadicalOrdinN(float x, float n)
+{
+    return Putere(x, 1/n);
 }
 
 float ParteIntreagaInf(float x)
@@ -255,7 +280,7 @@ float Arctangenta(float x)
         if(fabs(atan(x)) > epsi) return atan(x);
         else return 0;
     }
-    else return p/2;
+    else return pi/2;
 }
 
 float Arccotangenta(float x)
@@ -516,41 +541,41 @@ operatorLogic esteOperatorLogic(char s[])
     id xor = 6
     */
     if(s[0] == 'N' && s[1] == 'O' && s[2] == 'T')
-        {
-            op.id = 1;
-            op.len = 3;
-            return op;
-        }
+    {
+        op.id = 1;
+        op.len = 3;
+        return op;
+    }
     if(s[0] == 'A' && s[1] == 'N' && s[2] == 'D')
-        {
-            op.id = 2;
-            op.len = 3;
-            return op;
-        }
+    {
+        op.id = 2;
+        op.len = 3;
+        return op;
+    }
     if(s[0] == 'O' && s[1] == 'R')
-        {
-            op.id = 3;
-            op.len = 2;
-            return op;
-        }
+    {
+        op.id = 3;
+        op.len = 2;
+        return op;
+    }
     if(s[0] == 'N' && s[1] == 'A' && s[2] == 'N' && s[3] == 'D')
-        {
-            op.id = 4;
-            op.len = 4;
-            return op;
-        }
+    {
+        op.id = 4;
+        op.len = 4;
+        return op;
+    }
     if(s[0] == 'N' && s[1] == 'O' && s[2] == 'R')
-        {
-            op.id = 5;
-            op.len = 3;
-            return op;
-        }
+    {
+        op.id = 5;
+        op.len = 3;
+        return op;
+    }
     if(s[0] == 'X' && s[1] == 'O' && s[2] == 'R')
-        {
-            op.id = 6;
-            op.len = 3;
-            return op;
-        }
+    {
+        op.id = 6;
+        op.len = 3;
+        return op;
+    }
     op.id = 0;
     op.len = 0;
     return op;
@@ -558,15 +583,15 @@ operatorLogic esteOperatorLogic(char s[])
 
 int esteFunctie(char s[])
 {
-    char functii[30][20] = {"sin", "cos", "tan", "cot", "abs", "exp", "sqrt", "floor", "ceil", "round", "arcsin", "arccos", "arctan", "arccot", "sinh", "cosh", "tanh", "coth"};
+    char functii[30][20] = {"sin", "cos", "tan", "cot", "abs", "exp", "sqrt", "floor", "ceil", "round", "arcsin", "arccos", "arctan", "arccot", "sinh", "cosh", "tanh", "coth", "log"};
     //mai trebuie adaugate
-    for(int i=0; i<17; i++)
+    for(int i=0; i<19; i++)
         if(strcmp(functii[i],s) == 0)
             return i+1;
     if(strstr(s, "log["))
-        return 19;
-    if(strstr(s, "root["))
         return 20;
+    if(strstr(s, "root["))
+        return 21;
     return 0;
 }
 
@@ -582,8 +607,8 @@ bool esteNumar(char s[])
 float esteConst(char s[])
 {
     //returneaza constanta in sine
-    if(strcmp(s, "p") == 0)
-        return p;
+    if(strcmp(s, "pi") == 0)
+        return pi;
     if(strcmp(s, "e") == 0)
         return e;
     if(strcmp(s, "phi") == 0)
@@ -632,20 +657,43 @@ void extragereCuv(char token[][100], char exp[])
             for(int p = i; p < j; p++)
             {
                 cuv[n++] = exp[p];
-                int aux = esteFunctie(cuv);
-                if(aux && exp[p+1] != 'h')
+                int auxf = esteFunctie(cuv);
+                bool auxn = esteNumar(cuv);
+                if(auxf)
                 {
-                    if(aux == 19 || aux == 20)
+                    if((auxf == 1 || auxf == 2 || auxf == 3 || auxf == 4) && exp[p+1] == 'h')
                     {
-                        do
+                        p++;
+                        cuv[n++] = exp[p];
+                    }
+                    else
+                    {
+                        if(auxf == 19 && exp[p+1] == '[')
                         {
                             p++;
                             cuv[n++] = exp[p];
+                            auxf = 20;
                         }
-                        while(exp[p] != ']');
+                        if(auxf == 20 || auxf == 21)
+                        {
+                            do
+                            {
+                                p++;
+                                cuv[n++] = exp[p];
+                            }
+                            while(exp[p] != ']');
+                        }
                     }
                     j = p+1;
                     break;
+                }
+                else if(auxn)
+                {
+                    if(!esteNumar(exp+p))
+                    {
+                        j = p;
+                        break;
+                    }
                 }
             }
             cuv[n] = '\0';
@@ -677,7 +725,7 @@ void extragereCuv(char token[][100], char exp[])
                 {
                     token[E.lungime][1] = '\0';
                 }
-            E.lungime++;
+                E.lungime++;
             }
             i = j + 1;
         }
@@ -715,7 +763,7 @@ int tipToken(char s[])
         return 1;
     if(s[0] == ')')
         return 2;
-    if(strchr("+-", s[0]) || !(strcmp(s, "NOT")))
+    if(strchr("+-", s[0]))
         return 3;
     if(strchr("*/^><=#%", s[0]) || (esteOperatorLogic(s).id && strcmp(s, "NOT")))
         return 4;
@@ -723,6 +771,8 @@ int tipToken(char s[])
         return 5;
     if(esteNumar(s) || esteConst(s) || esteVar(s))
         return 6;
+    if(!(strcmp(s, "NOT")))
+        return 7;
     return 0;
     //daca functia returneaza 0, inseamna ca am intalnit un caracter ilegal
 }
@@ -755,7 +805,7 @@ bool verifCorect(expr E)
         }
         case 2:
         {
-            if(tipToken(E.token[i+1]) == 1 || tipToken(E.token[i+1]) == 5 || tipToken(E.token[i+1]) == 6)
+            if(tipToken(E.token[i+1]) == 1 || tipToken(E.token[i+1]) == 5 || tipToken(E.token[i+1]) == 6 || tipToken(E.token[i+1]) == 7)
                 ok = false;
             nrParanteze2++;
             break;
@@ -774,13 +824,19 @@ bool verifCorect(expr E)
         }
         case 5:
         {
-            if(tipToken(E.token[i+1]) != 1)
+            if(tipToken(E.token[i+1]) != 1 || tipToken(E.token[i+1]) == 7)
                 ok = false;
             break;
         }
         case 6:
         {
-            if(tipToken(E.token[i+1]) == 1 || tipToken(E.token[i+1]) == 5 || tipToken(E.token[i+1]) == 6)
+            if(tipToken(E.token[i+1]) == 1 || tipToken(E.token[i+1]) == 5 || tipToken(E.token[i+1]) == 6 || tipToken(E.token[i+1]) == 7)
+                ok = false;
+            break;
+        }
+        case 7:
+        {
+            if(tipToken(E.token[i+1]) == 2 || tipToken(E.token[i+1]) == 4)
                 ok = false;
             break;
         }
@@ -793,27 +849,30 @@ bool verifCorect(expr E)
                 corect = false;
             }
             if(tipToken(E.token[i]) == 0)
-                cout << "-Eroare pe pozitia " << len+1 << ": caracter ilegal" << endl;
-            else cout << "-Eroare pe pozitia " << len+1 << ": dupa '" << E.token[i] << "' nu poate urma '" << E.token[i+1] << "'" << endl;
+                cout << "-Eroare pe pozitia " << len+1 << ": caracter ilegal '" << E.token[i] << "'" << endl;
+            else if(i != E.lungime-2) cout << "-Eroare pe pozitia " << len+1 << ": dupa '" << E.token[i] << "' nu poate urma '" << E.token[i+1] << "'" << endl;
+            else if(tipToken(E.token[i]) == 5) cout << "-Eroare pe pozitia " << len+1 << ": lipseste argumentul functie '" << E.token[i] << "'" << endl;
+            else if(!(strcmp(E.token[i], "NOT"))) cout << "-Eroare pe pozitia " << len+1 << ": lipseste argumentul operatiei 'NOT'";
+            else cout << "-Eroare pe pozitia " << len+1 << ": lipseste un argument al operatiei '" << E.token[i] << "'" << endl;
         }
         i++;
     }
     int nr = nrParanteze1 - nrParanteze2;
     if(nr == 1)
-        {
-            cout << "-Eroare: o paranteza nu a fost inchisa" << endl;
-            corect = false;
-        }
+    {
+        cout << "-Eroare: o paranteza nu a fost inchisa" << endl;
+        corect = false;
+    }
     else if(nr > 1)
-        {
-            cout << "-Eroare: " << nr << " paranteze nu au fost inchise" << endl;
-            corect = false;
-        }
+    {
+        cout << "-Eroare: " << nr << " paranteze nu au fost inchise" << endl;
+        corect = false;
+    }
     else if(nr < 0)
-        {
-            cout << "-Eroare : sunt prea multe paranteze de tip ')'";
-            corect = false;
-        }
+    {
+        cout << "-Eroare : sunt prea multe paranteze de tip ')'";
+        corect = false;
+    }
     return corect;
 }
 
@@ -832,16 +891,16 @@ int dejaExista(char s[], listaVar L)
 float valoareVar(char s[], listaVar L)
 {
     //returneaza valoarea variabilei cu numele salvat in s
-    return L.var[dejaExista(s,L) - 1].valoare;
+    return L.var[dejaExista(s, L) - 1].valoare;
 }
 
 void inserareVar(char s[], char numar[], listaVar &L)
 {
     strcpy(L.var[L.nrElemente].nume, s);
     L.nrElemente++;
-    if(!strcmp(numar, "p"))
+    if(!strcmp(numar, "pi"))
     {
-        L.var[L.nrElemente-1].valoare = p;
+        L.var[L.nrElemente-1].valoare = pi;
         return;
     }
     if(!strcmp(numar, "e"))
@@ -1072,7 +1131,7 @@ float valoareExpresie(arbore A, listaVar L)
     }
     else switch(esteFunctie(val))
         {
-        //"sin", "cos", "tan", "cotan", "abs", "exp", "sqrt", "floor", "ceil", "round", "arcsin", "arccos", "arctan", "arccot", "sinh", "cosh", "tanh", "cotanh", "log", "root"
+        //"sin", "cos", "tan", "cotan", "abs", "exp", "sqrt", "floor", "ceil", "round", "arcsin", "arccos", "arctan", "arccot", "sinh", "cosh", "tanh", "cotanh", "log", "log[x]", "root[x]"
         case 1:
         {
             return Sinus(valoareExpresie(A -> dr, L));
@@ -1165,6 +1224,11 @@ float valoareExpresie(arbore A, listaVar L)
         }
         case 19:
         {
+            return Logaritm(valoareExpresie(A -> dr, L));
+            break;
+        }
+        case 20:
+        {
             char baza[100];
             int i, j;
             float b;
@@ -1173,19 +1237,18 @@ float valoareExpresie(arbore A, listaVar L)
             while(val[i] != ']')
             {
                 //log[x]
-                baza[j] = val[i];
-                j++;
-                i++;
+                baza[j++] = val[i++];
             }
+            baza[j] = '\0';
             if(esteConst(baza))
             {
                 b = esteConst(baza);
             }
             else b = atof(baza);
-            return Impartit(Logaritm(valoareExpresie(A -> dr, L)), Logaritm(b));
+            return LogaritmBazaB(valoareExpresie(A -> dr, L), b);
             break;
         }
-        case 20:
+        case 21:
         {
             char baza[100];
             int i, j;
@@ -1195,16 +1258,15 @@ float valoareExpresie(arbore A, listaVar L)
             while(val[i] != ']')
             {
                 //root[x]
-                baza[j] = val[i];
-                j++;
-                i++;
+                baza[j++] = val[i++];
             }
+            baza[j] = '\0';
             if(esteConst(baza))
             {
                 b = esteConst(baza);
             }
             else b = atof(baza);
-            return Putere(valoareExpresie(A -> dr, L), 1/b);
+            return RadicalOrdinN(valoareExpresie(A -> dr, L), b);
             break;
         }
         }
@@ -1304,13 +1366,13 @@ int main()
     extragereCuv(E.token, exp);
     //-------- Test extragereCuv -------//
 
-
+    /*
     for(int i=0; i < E.lungime-1; i++)
     {
         cout << endl << E.token[i];
     }
     cout << endl << endl;
-
+    */
 
     if(verifCorect(E))
     {
