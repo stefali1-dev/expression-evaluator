@@ -11,9 +11,6 @@
 #include "functii_stiva.h"
 #include "formare_arb.h"
 
-#define W 900
-#define H 700
-
 using namespace std;
 
 int main()

@@ -1,4 +1,6 @@
 #include "alte_functii.h"
+#define W 900
+#define H 700
 //-------------- functii pt formare arbore ------------//
 
 
@@ -36,7 +38,7 @@ void formareArbore(expr E)
                 //cout << E.tokenArr[i] << " opr\n";
 
                 while ((Opr.varf != NULL) && !(strchr("()",Opr.varf -> val[0])) &&
-                        prioritate(E.token[i]) < prioritate(Opr.varf -> val))
+                        prioritate(Opr.varf -> val) >= prioritate(E.token[i]))
                 {
 
                     anod *noddr, *nod;
