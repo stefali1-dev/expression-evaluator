@@ -522,8 +522,8 @@ void printOpd(stivaOpd Opd)
 
 bool esteSeparator(char c)
 {
-    char separatori[20] = "()+-*/^=<>#%";
-    if(strchr(separatori, c))
+    char separatori[30] = "()+-*/^=<>#%@~`':;|\,.?!$";
+    if(strchr(separatori, c) || c == '"')
         return true;
     return false;
 }
@@ -625,7 +625,7 @@ bool esteVar(char s[])
 
 int aritate(char s[])
 {
-    if(esteFunctie(s) || !(strcmp(s, "NOT")))
+    if(esteFunctie(s) || !(strcmp(s, "NOT")) || s[0] == '@' || s[0] == '~')
         return 1;
     return 2;
 }
@@ -640,6 +640,17 @@ void eliminareSpatii(char exp[])
             len--;
             j--;
         }
+}
+
+int cazExceptieToken(char token[][100], char exp[], int i)
+{
+    if(exp[i] == '+' && ((E.lungime == 0) || token[E.lungime-1][0] == '('))
+        return 1;
+    if(exp[i] == '-' && ((E.lungime == 0) || token[E.lungime-1][0] == '('))
+        return 2;
+    if(strchr("<>", exp[i]) && exp[i+1] == '=')
+        return 3;
+    return 0;
 }
 
 void extragereCuv(char token[][100], char exp[])
@@ -708,22 +719,40 @@ void extragereCuv(char token[][100], char exp[])
             }
             else
             {
-                token[E.lungime][0] = exp[j];
-                if(exp[j] == '>' && exp[j+1] == '=')
+                switch(cazExceptieToken(token, exp, j))
                 {
-                    token[E.lungime][1] = exp[j+1];
-                    token[E.lungime][2] = '\0';
-                    j++;
-                }
-                else if(exp[j] == '<' && exp[j+1] == '=')
+                case 0:
                 {
-                    token[E.lungime][1] = exp[j+1];
-                    token[E.lungime][2] = '\0';
-                    j++;
-                }
-                else
-                {
+                    //nici o exceptie, caz "default"
+                    token[E.lungime][0] = exp[j];
                     token[E.lungime][1] = '\0';
+                    break;
+                }
+                case 1:
+                {
+                    //plus unar
+                    token[E.lungime][0] = '@';
+                    token[E.lungime][1] = '@';
+                    token[E.lungime][2] = '\0';
+                    break;
+                }
+                case 2:
+                {
+                    //minus unar
+                    token[E.lungime][0] = '~';
+                    token[E.lungime][1] = '~';
+                    token[E.lungime][2] = '\0';
+                    break;
+                }
+                case 3:
+                {
+                    //mai mare/mic sau egal
+                    token[E.lungime][0] = exp[j];
+                    token[E.lungime][1] = exp[j+1];
+                    token[E.lungime][2] = '\0';
+                    j++;
+                    break;
+                }
                 }
                 E.lungime++;
             }
@@ -741,7 +770,7 @@ int prioritate(char s[])  // prioritate operatorilor
     {
         if(s[0]=='(' || s[0]==')')
             return 0;
-        if(s[0]=='+' || s[0]=='-')
+        if(s[0]=='+' || s[0]=='-' || s[0]=='@' || s[0]=='~')
             return 1;
         if(s[0]=='*' || s[0]=='/' || s[0]=='%')
             return 2;
@@ -755,6 +784,23 @@ int prioritate(char s[])  // prioritate operatorilor
     return 5;
 }
 
+void inlocuireUnar(char token[], char token_nou[])
+{
+    //inlocuieste '@@' (plusul unar) cu '+'
+    //inlocuieste '~~' (minusul unar) cu '-'
+    if(token[0] == '@')
+    {
+        strcpy(token_nou, "+");
+        return;
+    }
+    if(token[0] == '~')
+    {
+        strcpy(token_nou, "-");
+        return;
+    }
+    strcpy(token_nou, token);
+}
+
 //-------------- functie pt corectitudine ------------//
 
 int tipToken(char s[])
@@ -764,6 +810,10 @@ int tipToken(char s[])
     if(s[0] == ')')
         return 2;
     if(strchr("+-", s[0]))
+        return 3;
+    if(s[0] == '@' && s[1] == '@')
+        return 3;
+    if(s[0] == '~' && s[1] == '~')
         return 3;
     if(strchr("*/^><=#%", s[0]) || (esteOperatorLogic(s).id && strcmp(s, "NOT")))
         return 4;
@@ -789,6 +839,8 @@ bool verifCorect(expr E)
     {
         ok = true;
         len += strlen(E.token[i]);
+        if((E.token[i][0] == '@' && E.token[i][1] == '@') || (E.token[i][0] == '~' && E.token[i][1] == '~'))
+            len--;
         switch(tipToken(E.token[i]))
         {
         case 0:
@@ -848,12 +900,17 @@ bool verifCorect(expr E)
                 cout << "Expresia este incorecta, avand urmatoarele greseli sintactice: " << endl;
                 corect = false;
             }
+            char token_aux[100];
+            inlocuireUnar(E.token[i], token_aux);
             if(tipToken(E.token[i]) == 0)
-                cout << "-Eroare pe pozitia " << len+1 << ": caracter ilegal '" << E.token[i] << "'" << endl;
-            else if(i != E.lungime-2) cout << "-Eroare pe pozitia " << len+1 << ": dupa '" << E.token[i] << "' nu poate urma '" << E.token[i+1] << "'" << endl;
-            else if(tipToken(E.token[i]) == 5) cout << "-Eroare pe pozitia " << len+1 << ": lipseste argumentul functie '" << E.token[i] << "'" << endl;
-            else if(!(strcmp(E.token[i], "NOT"))) cout << "-Eroare pe pozitia " << len+1 << ": lipseste argumentul operatiei 'NOT'";
-            else cout << "-Eroare pe pozitia " << len+1 << ": lipseste un argument al operatiei '" << E.token[i] << "'" << endl;
+                cout << "-Eroare pe pozitia " << len << ": caracter ilegal '" << E.token[i][0] << "'" << endl;
+            else
+            {
+                if(i != E.lungime-2) cout << "-Eroare pe pozitia " << len+1 << ": dupa '" << token_aux << "' nu poate urma '" << E.token[i+1] << "'" << endl;
+                else if(tipToken(E.token[i]) == 5) cout << "-Eroare pe pozitia " << len+1 << ": lipseste argumentul functie '" << E.token[i] << "'" << endl;
+                else if(!(strcmp(E.token[i], "NOT"))) cout << "-Eroare pe pozitia " << len+1 << ": lipseste argumentul operatiei 'NOT'";
+                else cout << "-Eroare pe pozitia " << len+1 << ": lipseste un argument al operatiei '" << E.token[i] << "'" << endl;
+            }
         }
         i++;
     }
@@ -870,7 +927,7 @@ bool verifCorect(expr E)
     }
     else if(nr < 0)
     {
-        cout << "-Eroare : sunt prea multe paranteze de tip ')'";
+        cout << "-Eroare: sunt prea multe paranteze de tip ')'";
         corect = false;
     }
     return corect;
@@ -935,6 +992,33 @@ void cautaVar(expr E, listaVar &L)
                 cin >> numar;
             }
             inserareVar(s, numar, L);
+        }
+
+        //urmatoarele doua conditii sunt pentru cazul in care avem baza unui logaritm/ordinul unui radical ca variabila
+        int auxf = esteFunctie(s);
+        if(auxf == 20 || auxf == 21)
+        {
+            char baza[100];
+            int j, n;
+            j = auxf-16;
+            n = 0;
+            do
+            {
+                baza[n++] = s[j++];
+            }
+            while(s[j] != ']');
+            baza[n++] = '\0';
+            if(esteVar(baza) && !(dejaExista(baza, L)))
+            {
+                cout << "Introduceti valoarea variabilei " << baza << ": ";
+                cin >> numar;
+                while(!esteConst(numar) && !esteNumar(numar))
+                {
+                    cout << "Valoarea introdusa nu este un numar, introduceti din nou: ";
+                    cin >> numar;
+                }
+                inserareVar(baza, numar, L);
+            }
         }
     }
 }
@@ -1091,6 +1175,16 @@ float valoareExpresie(arbore A, listaVar L)
             return Rest(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
             break;
         }
+        case '@':
+        {
+            return Plus(0, valoareExpresie(A -> dr, L));
+            break;
+        }
+        case '~':
+        {
+            return Minus(0, valoareExpresie(A -> dr, L));
+            break;
+        }
         }
     }
     else if(esteOperatorLogic(val).id)
@@ -1240,6 +1334,10 @@ float valoareExpresie(arbore A, listaVar L)
                 baza[j++] = val[i++];
             }
             baza[j] = '\0';
+            if(esteVar(baza))
+            {
+                return LogaritmBazaB(valoareExpresie(A -> dr, L), valoareVar(baza, L));
+            }
             if(esteConst(baza))
             {
                 b = esteConst(baza);
@@ -1261,6 +1359,10 @@ float valoareExpresie(arbore A, listaVar L)
                 baza[j++] = val[i++];
             }
             baza[j] = '\0';
+            if(esteVar(baza))
+            {
+                return RadicalOrdinN(valoareExpresie(A -> dr, L), valoareVar(baza, L));
+            }
             if(esteConst(baza))
             {
                 b = esteConst(baza);
@@ -1335,10 +1437,11 @@ void desenLinie(Punct pozAnt, Punct pozCurenta)
 void desenNod(char sir[], Punct pozCurenta)
 {
     int raza = 10 + max(textwidth(sir) / 2, textheight(sir) / 2);
-
     fillellipse(pozCurenta.x, pozCurenta.y, raza, raza);
     setcolor(BLACK);
-    outtextxy(pozCurenta.x - textwidth(sir) / 2, pozCurenta.y - textheight(sir) / 2, sir);
+    if(sir[0] == '@')   outtextxy(pozCurenta.x - textwidth("+") / 2, pozCurenta.y - textheight("+") / 2, "+");
+    else if(sir[0] == '~')  outtextxy(pozCurenta.x - textwidth("-") / 2, pozCurenta.y - textheight("-") / 2, "-");
+    else outtextxy(pozCurenta.x - textwidth(sir) / 2, pozCurenta.y - textheight(sir) / 2, sir);
     setcolor(WHITE);
 }
 
@@ -1371,18 +1474,21 @@ int main()
     {
         cout << endl << E.token[i];
     }
-    cout << endl << endl;
+    cout << endl;
     */
+
+    //---------------------------------//
 
     if(verifCorect(E))
     {
+        // -- afisare rezultat -- //
         formareArbore(E);
         cautaVar(E, L);
         arbore A;
         A = topOpd(Opd);
         float rezultat;
         rezultat = valoareExpresie(A, L);
-        cout << rezultat;
+        cout << "Valoarea expresiei este " << rezultat << ".";
 
         // -- afisare arb -- //
 
