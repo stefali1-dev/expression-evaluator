@@ -1,9 +1,9 @@
-//--------------- alte functii ------------//
+    //--------------- alte functii ------------//
 
 bool esteSeparator(char c)
 {
-    char separatori[30] = "()+-*/^=<>#%@~`':;|\,.?!$";
-    if(strchr(separatori, c) || c == '"')
+    char separatori[25] = "()+-*/^=<>#%@~`':;|,?!$";
+    if(strchr(separatori, c) || c == '"' || c == '\\')
         return true;
     return false;
 }
@@ -77,7 +77,7 @@ int esteFunctie(char s[])
 
 bool esteNumar(char s[])
 {
-    if(strchr("0123456789",s[0]) && s[0] != '\0')
+    if(strchr("0123456789.",s[0]) && s[0] != '\0')
         return true;
     if(s[0] == '-' && strchr("0123456789", s[1]) && s[1] != '\0')
         return true;
@@ -182,7 +182,16 @@ void extragereCuv(char token[][100], char exp[])
                 {
                     if(!esteNumar(exp+p))
                     {
-                        j = p;
+                        if(exp[p-1] == '.')
+                        {
+                            j = p-1;
+                            n -= 2;
+                        }
+                        else
+                        {
+                            j = p;
+                            n = n - 1;
+                        }
                         break;
                     }
                 }
@@ -244,6 +253,23 @@ void extragereCuv(char token[][100], char exp[])
     E.lungime++;
 }
 
+bool esteExpresieSimpla(char s[])
+{
+    //verifica daca o expresie este formata dintr-un singur numar, constanta sau variabila
+    //folosit pt verificarea corectitudinii bazei/ordinului logaritmilor/radicalilor
+    char token_aux[N][100];
+    int lungime_aux = E.lungime;
+    E.lungime = 0;
+    extragereCuv(token_aux, s);
+    if(E.lungime != 2)
+        {
+            E.lungime = lungime_aux;
+            return false;
+        }
+    E.lungime = lungime_aux;
+    return true;
+}
+
 int prioritate(char s[])  // prioritate operatorilor
 {
     if(esteSeparator(s[0]))
@@ -299,7 +325,7 @@ int tipToken(char s[])
         return 4;
     if(esteFunctie(s))
         return 5;
-    if(esteNumar(s) || esteConst(s) || esteVar(s))
+    if((esteNumar(s) && s[0] != '.') || esteConst(s) || esteVar(s))
         return 6;
     if(!(strcmp(s, "NOT")))
         return 7;
@@ -310,6 +336,8 @@ int tipToken(char s[])
 bool verifCorect(expr E)
 {
     bool ok; //pt a verifica daca am gasit greseala
+    int ok_baza = 0; //pt a verifica daca baza/ordinul unui logaritm/radical este corect
+    int len_baza;
     bool corect = true; //pt a verifica corectitudinea expresiei in sine, va fi returnat
     int i = 0;
     int len = 0; //vom avea nevoie de un "contor" aditional, intrucat lungimea sirului de token-uri nu coincide cu lungimea expresiei
@@ -356,8 +384,26 @@ bool verifCorect(expr E)
         }
         case 5:
         {
+            int auxf = esteFunctie(E.token[i]);
+            if(auxf == 20 || auxf == 21)
+            {
+                char baza[100];
+                int j;
+                j = auxf-16;
+                len_baza = 0;
+                do
+                {
+                    baza[len_baza++] = E.token[i][j++];
+                }
+                while(E.token[i][j] != ']');
+                baza[len_baza++] = '\0';
+                if(!esteExpresieSimpla(baza))
+                    ok_baza = auxf - 19;
+            }
             if(tipToken(E.token[i+1]) != 1 || tipToken(E.token[i+1]) == 7)
                 ok = false;
+            if(tipToken(E.token[i+1]) == 0)
+                ok = true;
             break;
         }
         case 6:
@@ -373,6 +419,23 @@ bool verifCorect(expr E)
             break;
         }
         }
+        if(ok_baza)
+        {
+            if(corect == true)
+            {
+                cout << "Expresia este incorecta, avand urmatoarele greseli sintactice: " << endl;
+                corect = false;
+            }
+            if(ok_baza == 1)
+            {
+                cout << "-Eroare pe pozitia " << len - len_baza + 1 << ": baza unui logaritm poate fi numai un numar pozitiv, constanta sau o singura variabila" << endl;
+            }
+            else
+            {
+                cout << "-Eroare pe pozitia " << len - len_baza + 1 << ": ordinul unui radical poate fi numai un numar pozitiv, constanta sau o singura variabila" << endl;
+            }
+        }
+        ok_baza = 0;
         if(ok == false)
         {
             if(corect == true)
@@ -380,14 +443,14 @@ bool verifCorect(expr E)
                 cout << "Expresia este incorecta, avand urmatoarele greseli sintactice: " << endl;
                 corect = false;
             }
-            char token_aux[100];
-            inlocuireUnar(E.token[i], token_aux);
+            char token_nou[100];
+            inlocuireUnar(E.token[i], token_nou);
             if(tipToken(E.token[i]) == 0)
                 cout << "-Eroare pe pozitia " << len << ": caracter ilegal '" << E.token[i][0] << "'" << endl;
             else
             {
-                if(i != E.lungime-2) cout << "-Eroare pe pozitia " << len+1 << ": dupa '" << token_aux << "' nu poate urma '" << E.token[i+1] << "'" << endl;
-                else if(tipToken(E.token[i]) == 5) cout << "-Eroare pe pozitia " << len+1 << ": lipseste argumentul functie '" << E.token[i] << "'" << endl;
+                if(i != E.lungime-2) cout << "-Eroare pe pozitia " << len+1 << ": dupa '" << token_nou << "' nu poate urma '" << E.token[i+1] << "'" << endl;
+                else if(tipToken(E.token[i]) == 5) cout << "-Eroare pe pozitia " << len+1 << ": lipseste argumentul functiei '" << E.token[i] << "'" << endl;
                 else if(!(strcmp(E.token[i], "NOT"))) cout << "-Eroare pe pozitia " << len+1 << ": lipseste argumentul operatiei 'NOT'";
                 else cout << "-Eroare pe pozitia " << len+1 << ": lipseste un argument al operatiei '" << E.token[i] << "'" << endl;
             }
@@ -509,3 +572,4 @@ void afisareVar(listaVar L)
     for(int i = 0; i < L.nrElemente; i++)
         cout << "Variabila " << L.var[i].nume << " are valoarea " << L.var[i].valoare << "." << endl;
 }
+
