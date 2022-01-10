@@ -1,6 +1,8 @@
 #include "alte_functii.h"
+
 #define W 900
 #define H 700
+
 //-------------- functii pt formare arbore ------------//
 
 
@@ -40,7 +42,8 @@ void formareArbore(expr E)
                 while ((Opr.varf != NULL) && !(strchr("()",Opr.varf -> val[0])) &&
                         prioritate(Opr.varf -> val) >= prioritate(E.token[i]))
                 {
-
+                    if(prioritate(E.token[i]) == 3)
+                        break;
                     anod *noddr, *nod;
                     nod = new anod;
                     strcpy(nod -> val, Opr.varf -> val);
@@ -408,12 +411,12 @@ void desenLinie(Punct pozAnt, Punct pozCurenta)
 
 void desenNod(char sir[], Punct pozCurenta)
 {
-    int raza = 10 + max(textwidth(sir) / 2, textheight(sir) / 2);
+    char sir_nou[100];
+    inlocuireUnar(sir, sir_nou);
+    int raza = 10 + max(textwidth(sir_nou) / 2, textheight(sir_nou) / 2);
     fillellipse(pozCurenta.x, pozCurenta.y, raza, raza);
     setcolor(BLACK);
-    if(sir[0] == '@')   outtextxy(pozCurenta.x - textwidth("+") / 2, pozCurenta.y - textheight("+") / 2, "+");
-    else if(sir[0] == '~')  outtextxy(pozCurenta.x - textwidth("-") / 2, pozCurenta.y - textheight("-") / 2, "-");
-    else outtextxy(pozCurenta.x - textwidth(sir) / 2, pozCurenta.y - textheight(sir) / 2, sir);
+    outtextxy(pozCurenta.x - textwidth(sir_nou) / 2, pozCurenta.y - textheight(sir_nou) / 2, sir_nou);
     setcolor(WHITE);
 }
 
