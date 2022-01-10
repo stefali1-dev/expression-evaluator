@@ -35,7 +35,7 @@ struct stivaOpd
 
 struct expr
 {
-    char token[N][100];
+    char token[N][100], sir[N*100];
     int lungime = 0;
 } E;
 
@@ -65,3 +65,15 @@ struct operatorLogic
     */
     int len;
 };
+
+struct cel{
+    int inaltime, latime;
+}Celula;
+
+struct buton{
+    int left, top, right, bottom;
+}ResetBtn, CasetaText, SubmitBtn;
+
+struct {
+    int W, H, paragraf = 1;
+}Fereastra;

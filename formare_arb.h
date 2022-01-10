@@ -1,7 +1,5 @@
 #include "alte_functii.h"
 
-#define W 900
-#define H 700
 
 //-------------- functii pt formare arbore ------------//
 
@@ -361,8 +359,6 @@ void parcurgereInPreordine(arbore A)
     }
 }
 
-int inaltimeArb, latimeArb, inaltimeCel, latimeCel;
-
 struct Punct
 {
     int x, y;
@@ -425,8 +421,8 @@ void deseneaza(arbore A, Punct pozAnt, int niv, int col)
     if(!esteArboreNul(A))
     {
         Punct pozCurenta;
-        pozCurenta.x = (col + nrColoane(A -> st) + 1) * latimeCel - latimeCel / 2;
-        pozCurenta.y = niv * inaltimeCel - inaltimeCel / 2;
+        pozCurenta.x = (col + nrColoane(A -> st) + 1) * Celula.latime - Celula.latime / 2;
+        pozCurenta.y = niv * Celula.inaltime - Celula.inaltime / 2;
 
         deseneaza(A -> st, pozCurenta, niv + 1, col);
         deseneaza(A -> dr, pozCurenta, niv + 1, col + nrColoane(A -> st) + 1);

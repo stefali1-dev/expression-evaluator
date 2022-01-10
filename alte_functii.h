@@ -1,4 +1,4 @@
-    //--------------- alte functii ------------//
+//--------------- alte functii ------------//
 
 bool esteSeparator(char c)
 {
@@ -262,10 +262,10 @@ bool esteExpresieSimpla(char s[])
     E.lungime = 0;
     extragereCuv(token_aux, s);
     if(E.lungime != 2)
-        {
-            E.lungime = lungime_aux;
-            return false;
-        }
+    {
+        E.lungime = lungime_aux;
+        return false;
+    }
     E.lungime = lungime_aux;
     return true;
 }
@@ -343,6 +343,11 @@ bool verifCorect(expr E)
     int len = 0; //vom avea nevoie de un "contor" aditional, intrucat lungimea sirului de token-uri nu coincide cu lungimea expresiei
     int nrParanteze1 = 0;
     int nrParanteze2 = 0;
+
+    char temp[1000];
+    int poz;
+    char poz_arr[100];
+
     while(i < E.lungime-1)
     {
         ok = true;
@@ -419,20 +424,37 @@ bool verifCorect(expr E)
             break;
         }
         }
+
         if(ok_baza)
         {
             if(corect == true)
             {
-                cout << "Expresia este incorecta, avand urmatoarele greseli sintactice: " << endl;
+                strcpy(temp, "Expresia este incorecta, avand urmatoarele greseli sintactice: ");
+                afiseazaFereastra(temp);
+                // cout << "Expresia este incorecta, avand urmatoarele greseli sintactice: " << endl;
                 corect = false;
             }
             if(ok_baza == 1)
             {
-                cout << "-Eroare pe pozitia " << len - len_baza + 1 << ": baza unui logaritm poate fi numai un numar pozitiv, constanta sau o singura variabila" << endl;
+                strcpy(temp, "-Eroare pe pozitia ");
+                poz = len - len_baza + 1;
+
+                sprintf(poz_arr, "%d", poz);
+                strcat(temp, poz_arr);
+                strcat(temp, ": baza unui logaritm poate fi numai un numar pozitiv, constanta sau o singura variabila");
+                afiseazaFereastra(temp);
+                // cout << "-Eroare pe pozitia " << len - len_baza + 1 << ": baza unui logaritm poate fi numai un numar pozitiv, constanta sau o singura variabila" << endl;
             }
             else
             {
-                cout << "-Eroare pe pozitia " << len - len_baza + 1 << ": ordinul unui radical poate fi numai un numar pozitiv, constanta sau o singura variabila" << endl;
+                strcpy(temp, "-Eroare pe pozitia ");
+                poz = len - len_baza + 1;
+
+                sprintf(poz_arr, "%d", poz);
+                strcat(temp, poz_arr);
+                strcat(temp, ": ordinul unui radical poate fi numai un numar pozitiv, constanta sau o singura variabila");
+                afiseazaFereastra(temp);
+                // cout << "-Eroare pe pozitia " << len - len_baza + 1 << ": ordinul unui radical poate fi numai un numar pozitiv, constanta sau o singura variabila" << endl;
             }
         }
         ok_baza = 0;
@@ -440,19 +462,59 @@ bool verifCorect(expr E)
         {
             if(corect == true)
             {
-                cout << "Expresia este incorecta, avand urmatoarele greseli sintactice: " << endl;
+                strcpy(temp, "Expresia este incorecta, avand urmatoarele greseli sintactice: ");
+                afiseazaFereastra(temp);
+                // cout << "Expresia este incorecta, avand urmatoarele greseli sintactice: " << endl;
                 corect = false;
             }
             char token_nou[100];
             inlocuireUnar(E.token[i], token_nou);
             if(tipToken(E.token[i]) == 0)
-                cout << "-Eroare pe pozitia " << len << ": caracter ilegal '" << E.token[i][0] << "'" << endl;
+            {
+                strcpy(temp, "-Eroare pe pozitia ");
+                sprintf(poz_arr, "%d", len);
+                strcat(temp, poz_arr);
+                strcat(temp, ": caracter ilegal '");
+                strcat(temp, E.token[i]);
+                strcat(temp, "'");
+                afiseazaFereastra(temp);
+                //cout << "-Eroare pe pozitia " << len << ": caracter ilegal '" << E.token[i][0] << "'" << endl;
+            }
             else
             {
-                if(i != E.lungime-2) cout << "-Eroare pe pozitia " << len+1 << ": dupa '" << token_nou << "' nu poate urma '" << E.token[i+1] << "'" << endl;
-                else if(tipToken(E.token[i]) == 5) cout << "-Eroare pe pozitia " << len+1 << ": lipseste argumentul functiei '" << E.token[i] << "'" << endl;
-                else if(!(strcmp(E.token[i], "NOT"))) cout << "-Eroare pe pozitia " << len+1 << ": lipseste argumentul operatiei 'NOT'";
-                else cout << "-Eroare pe pozitia " << len+1 << ": lipseste un argument al operatiei '" << E.token[i] << "'" << endl;
+                poz = len+1;
+                sprintf(poz_arr, "%d", poz);
+                strcpy(temp, "-Eroare pe pozitia ");
+                strcat(temp, poz_arr);
+                if(i != E.lungime-2)
+                {
+                    strcat(temp, ": dupa '");
+                    strcat(temp, token_nou);
+                    strcat(temp, "' nu poate urma '");
+                    strcat(temp, E.token[i+1]);
+                    strcat(temp, "'");
+                    //cout << "-Eroare pe pozitia " << len+1 << ": dupa '" << token_nou << "' nu poate urma '" << E.token[i+1] << "'" << endl;
+                }
+                else if(tipToken(E.token[i]) == 5)
+                {
+                    strcat(temp, ": lipseste argumentul functiei '");
+                    strcat(temp, E.token[i]);
+                    strcat(temp, "'");
+                    //cout << "-Eroare pe pozitia " << len+1 << ": lipseste argumentul functiei '" << E.token[i] << "'" << endl;
+                }
+                else if(!(strcmp(E.token[i], "NOT")))
+                {
+                    strcat(temp, ": lipseste argumentul operatiei 'NOT'");
+                    //cout << "-Eroare pe pozitia " << len+1 << ": lipseste argumentul operatiei 'NOT'";
+                }
+                else
+                {
+                    strcat(temp, ": lipseste un argument al operatiei '");
+                    strcat(temp, E.token[i]);
+                    strcat(temp, "'");
+                    //cout << "-Eroare pe pozitia " << len+1 << ": lipseste un argument al operatiei '" << E.token[i] << "'" << endl;
+                }
+                afiseazaFereastra(temp);
             }
         }
         i++;
@@ -460,16 +522,25 @@ bool verifCorect(expr E)
     int nr = nrParanteze1 - nrParanteze2;
     if(nr == 1)
     {
-        cout << "-Eroare: o paranteza nu a fost inchisa" << endl;
+        strcpy(temp, "-Eroare: o paranteza nu a fost inchisa");
+        afiseazaFereastra(temp);
+        // cout << "-Eroare: o paranteza nu a fost inchisa" << endl;
         corect = false;
     }
     else if(nr > 1)
     {
-        cout << "-Eroare: " << nr << " paranteze nu au fost inchise" << endl;
+        strcpy(temp, "-Eroare: o paranteza nu a fost inchisa");
+        sprintf(poz_arr, "%d", nr);
+        strcat(temp, poz_arr);
+        strcat(temp, " paranteze nu au fost inchise");
+        afiseazaFereastra(temp);
+        // cout << "-Eroare: " << nr << " paranteze nu au fost inchise" << endl;
         corect = false;
     }
     else if(nr < 0)
     {
+        strcpy(temp, "-Eroare: o paranteza nu a fost inchisa");
+        afiseazaFereastra(temp);
         cout << "-Eroare: sunt prea multe paranteze de tip ')'";
         corect = false;
     }
@@ -522,17 +593,26 @@ void cautaVar(expr E, listaVar &L)
     L.nrElemente = 0;
     char s[100];
     char numar[100];
+    char temp[1000];
     for(int i = 0; i < E.lungime; i++)
     {
         strcpy(s, E.token[i]);
         if(esteVar(s) && !(dejaExista(s, L)))
         {
-            cout << "Introduceti valoarea variabilei " << s << ": ";
-            cin >> numar;
+            strcpy(temp, "Introduceti valoarea variabilei ");
+            strcat(temp, s);
+            strcat(temp, ": ");
+
+            afiseazaFereastra(temp);
+
+            strcpy(numar, citesteSiAfiseaza());
+
             while(!esteConst(numar) && !esteNumar(numar))
             {
-                cout << "Valoarea introdusa nu este un numar, introduceti din nou: ";
-                cin >> numar;
+                strcpy(temp, "Valoarea introdusa nu este un numar, introduceti din nou: ");
+                afiseazaFereastra(temp);
+
+                strcpy(numar, citesteSiAfiseaza());
             }
             inserareVar(s, numar, L);
         }
@@ -553,12 +633,17 @@ void cautaVar(expr E, listaVar &L)
             baza[n++] = '\0';
             if(esteVar(baza) && !(dejaExista(baza, L)))
             {
-                cout << "Introduceti valoarea variabilei " << baza << ": ";
-                cin >> numar;
+                strcpy(temp, "Introduceti valoarea variabilei ");
+                strcat(temp, baza);
+                strcat(temp, ": ");
+                afiseazaFereastra(temp);
+
+                strcpy(numar, citesteSiAfiseaza());
                 while(!esteConst(numar) && !esteNumar(numar))
                 {
-                    cout << "Valoarea introdusa nu este un numar, introduceti din nou: ";
-                    cin >> numar;
+                    strcpy(temp, "Valoarea introdusa nu este un numar, introduceti din nou: ");
+                    afiseazaFereastra(temp);
+                    strcpy(numar, citesteSiAfiseaza());
                 }
                 inserareVar(baza, numar, L);
             }
