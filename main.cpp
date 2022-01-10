@@ -11,6 +11,9 @@
 #include "functii_stiva.h"
 #include "formare_arb.h"
 
+#define W 900
+#define H 700
+
 using namespace std;
 
 int main()
@@ -20,13 +23,12 @@ int main()
     extragereCuv(E.token, exp);
     //-------- Test extragereCuv -------//
 
-    /*
+
     for(int i=0; i < E.lungime-1; i++)
     {
         cout << endl << E.token[i];
     }
     cout << endl;
-    */
 
     //---------------------------------//
 
@@ -39,7 +41,9 @@ int main()
         A = topOpd(Opd);
         float rezultat;
         rezultat = valoareExpresie(A, L);
-        cout << "Valoarea expresiei este " << rezultat << ".";
+        if(EsteNaN(rezultat))
+            cout << "Expresia este nedeterminata.";
+        else cout << "Valoarea expresiei este " << rezultat << ".";
 
         // -- afisare arb -- //
 
