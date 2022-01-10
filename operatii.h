@@ -41,6 +41,11 @@ float Xor(float x, float y)
 
 // ------------ operatii matematice simple ------------//
 
+bool EsteNaN(float x)
+{
+    return x != x;
+}
+
 bool DifInf(float x)
 {
     return fabs(infinit-fabs(x)) > infinit / 2.0;
@@ -48,6 +53,8 @@ bool DifInf(float x)
 
 float Inmultit(float x, float y)
 {
+    if (EsteNaN(x) || EsteNaN(y))
+        return NAN;
     if (fabs(x) < epsi || fabs(y) < epsi) return 0;
     else if (DifInf(x) && DifInf(y)) return x*y;
     else return infinit;
@@ -55,11 +62,12 @@ float Inmultit(float x, float y)
 
 float Putere(float x, float y)
 {
-    // float p;
+    if (EsteNaN(x) || EsteNaN(y))
+        return NAN;
     if (x == 0) return 0;
     else if (y == 0) return 1;
     else if (x == infinit || y == infinit) return infinit;
-    else if (pow(x,y) > epsi) return pow(x,y);
+    else if (fabs(pow(x,y)) > epsi) return pow(x,y);
     else return 0;
 }
 
@@ -95,6 +103,8 @@ bool MaiMareEgal(float x, float y)
 
 float Plus(float x, float y)
 {
+    if (EsteNaN(x) || EsteNaN(y))
+        return NAN;
     if (DifInf(x) && DifInf(y))
     {
         if(fabs(x+y) > epsi) return x+y;
@@ -105,6 +115,8 @@ float Plus(float x, float y)
 
 float Minus(float x, float y)
 {
+    if (EsteNaN(x) || EsteNaN(y))
+        return NAN;
     if (DifInf(x) && DifInf(y))
     {
         if(fabs(x-y) > epsi) return x-y;
@@ -115,12 +127,17 @@ float Minus(float x, float y)
 
 float Impartit(float x, float y)
 {
+    if (EsteNaN(x) || EsteNaN(y))
+        return NAN;
     if (fabs(y) > epsi) return x/y;
     else return infinit;
 }
 
 float Rest(float x, float y)
 {
+    if (EsteNaN(x) || EsteNaN(y))
+        return NAN;
     if (DifInf(x) && fabs(y) > epsi) return fmod(x, y);
     else return infinit;
 }
+
