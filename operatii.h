@@ -1,4 +1,4 @@
-#define infinit INT_MAX
+#define infinit LONG_LONG_MAX
 #define epsi 0.0001
 
 // ------------ constante matematice ------------ //
@@ -48,7 +48,7 @@ bool EsteNaN(float x)
 
 bool DifInf(float x)
 {
-    return fabs(infinit-fabs(x)) > infinit / 2.0;
+    return fabs(x) < infinit;
 }
 
 float Inmultit(float x, float y)
