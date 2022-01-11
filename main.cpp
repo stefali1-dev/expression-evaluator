@@ -8,6 +8,7 @@
 #define ENTER 13
 #define BACKSPACE 8
 #define ESC 27
+#define SPACE 32
 
 #include "structuri.h"
 #include "functii_grafice.h"
@@ -22,7 +23,8 @@ using namespace std;
 
 void initializareFrontPage(int W, int H);
 
-void reset(){
+void reset()
+{
     strcpy(E.sir, "");
     cleardevice();
     Fereastra.paragraf = 1;
@@ -36,9 +38,9 @@ void reset(){
 void afisareArbore(arbore A)
 {
 
-    Celula.inaltime = (Fereastra.H - Fereastra.H*0.3) / nrNiveluri(A);
-    Celula.latime = (Fereastra.W - Fereastra.W*0.3) / nrColoane(A);
-    line(Fereastra.W*0.3, 0, Fereastra.W*0.3, Fereastra.H);
+    Celula.inaltime = (Fereastra.H - Fereastra.H*0.2) / nrNiveluri(A);
+    Celula.latime = (Fereastra.W - Fereastra.W*0.2) / nrColoane(A);
+    line(Fereastra.W*0.2, 0, Fereastra.W*0.2, Fereastra.H);
     setlinestyle(0, 0, 3);
     setbkcolor(WHITE);
     setfillstyle(EMPTY_FILL,WHITE);
@@ -47,7 +49,8 @@ void afisareArbore(arbore A)
     setbkcolor(BLACK);
     setfillstyle(EMPTY_FILL,BLACK);
     char c = (char)getch();
-    if(c == ESC || c == ENTER || c == BACKSPACE){
+    if(c == ESC || c == ENTER || c == BACKSPACE)
+    {
         reset();
         initializareFrontPage(Fereastra.W, Fereastra.H);
     }
@@ -63,7 +66,7 @@ void proceseazaSir()
         // -- afisare rezultat -- //
         formareArbore(E);
 
-        line(Fereastra.W*0.3, 0, Fereastra.W*0.3, Fereastra.H);
+        line(Fereastra.W*0.2, 0, Fereastra.W*0.2, Fereastra.H);
 
         cautaVar(E, L);
         arbore A;
@@ -87,16 +90,20 @@ void proceseazaSir()
                 sprintf(rez_arr, "%.2f", rezultat);
                 strcat(s, rez_arr);
                 //cout << "Valoarea expresiei este " << rezultat << ".";
-                outtextxy(Fereastra.W/2 - textwidth(s)/2, Fereastra.H/32 - textheight(s)/2, s);
+                outtextxy(Fereastra.W*0.6 - textwidth(s)/2, Fereastra.H/32 - textheight(s)/2, s);
             }
             else
             {
                 char s[] = "Valoare expresiei este infinita.";
-                outtextxy(Fereastra.W/2 - textwidth(s)/2, Fereastra.H/32 - textheight(s)/2, s);
+                outtextxy(Fereastra.W*0.6 - textwidth(s)/2, Fereastra.H/32 - textheight(s)/2, s);
             }
-            line(Fereastra.W*0.3, Fereastra.H*0.3, Fereastra.W, Fereastra.H*0.3);
+            line(Fereastra.W*0.2, Fereastra.H*0.2, Fereastra.W, Fereastra.H*0.2);
+
+            char s[] = "Pentru a salva imaginea arborelui apasa SPACE";
+            outtextxy(Fereastra.W*0.6 - textwidth(s)/2, Fereastra.H/8 - textheight(s)/2, s);
 
             afisareArbore(A);
+
         }
     }
 
@@ -122,7 +129,8 @@ void citesteSir()
 
         if((int)c == ENTER)
         {
-            if(c_predecesor != -1){
+            if(c_predecesor != -1)
+            {
                 E.sir[len] = '\0';
                 proceseazaSir();
                 break;
@@ -145,7 +153,8 @@ void citesteSir()
             continue;
         }
 
-        if((int)c == ESC){
+        if((int)c == ESC)
+        {
             reset();
             initializareFrontPage(Fereastra.W, Fereastra.H);
             break;
@@ -189,14 +198,17 @@ void mainLoop(int W, int H)
     reset();
     initializareFrontPage(W, H);
     char c = (char)getch();
-    if(c == ESC || c == ENTER || c == BACKSPACE)
-        mainLoop(W, H);
+    if(c == SPACE)
+    {
+        writeimagefile("ArboreExpr.bmp", Fereastra.W*0.2, Fereastra.H*0.2, Fereastra.W, Fereastra.H);
+    }
+    mainLoop(W, H);
 }
 
 int main()
 {
     Fereastra.W = 1300;
-    Fereastra.H = 800;
+    Fereastra.H = 950;
     initwindow(Fereastra.W, Fereastra.H);
     mainLoop(Fereastra.W, Fereastra.H);
     // extragere

@@ -601,7 +601,7 @@ void cautaVar(expr E, listaVar &L)
         {
             strcpy(temp, "Introduceti valoarea variabilei ");
             strcat(temp, s);
-            strcat(temp, ": ");
+            strcat(temp, ":");
 
             afiseazaFereastra(temp);
 
@@ -609,7 +609,9 @@ void cautaVar(expr E, listaVar &L)
 
             while(!esteConst(numar) && !esteNumar(numar))
             {
-                strcpy(temp, "Valoarea introdusa nu este un numar, introduceti din nou: ");
+                strcpy(temp, "Valoarea introdusa nu este un numar");
+                afiseazaFereastra(temp);
+                strcpy(temp, "Introduceti din nou:");
                 afiseazaFereastra(temp);
 
                 strcpy(numar, citesteSiAfiseaza());
@@ -635,13 +637,15 @@ void cautaVar(expr E, listaVar &L)
             {
                 strcpy(temp, "Introduceti valoarea variabilei ");
                 strcat(temp, baza);
-                strcat(temp, ": ");
+                strcat(temp, ":");
                 afiseazaFereastra(temp);
 
                 strcpy(numar, citesteSiAfiseaza());
                 while(!esteConst(numar) && !esteNumar(numar))
                 {
-                    strcpy(temp, "Valoarea introdusa nu este un numar, introduceti din nou: ");
+                    strcpy(temp, "Valoarea introdusa nu este un numar");
+                    afiseazaFereastra(temp);
+                    strcpy(temp, "Introduceti din nou:");
                     afiseazaFereastra(temp);
                     strcpy(numar, citesteSiAfiseaza());
                 }
