@@ -122,7 +122,7 @@ void eliminareSpatii(char exp[])
         }
 }
 
-int cazExceptieToken(char token[][100], char exp[], int i)
+int cazExceptieToken(char token[][DIMEN_MAXIMA_TOKEN], char exp[], int i)
 {
     if(exp[i] == '+' && ((E.lungime == 0) || token[E.lungime-1][0] == '('))
         return 1;
@@ -133,7 +133,7 @@ int cazExceptieToken(char token[][100], char exp[], int i)
     return 0;
 }
 
-void extragereCuv(char token[][100], char exp[])
+void extragereCuv(char token[][DIMEN_MAXIMA_TOKEN], char exp[])
 {
     eliminareSpatii(exp);
     int len = strlen(exp);
@@ -257,7 +257,7 @@ bool esteExpresieSimpla(char s[])
 {
     //verifica daca o expresie este formata dintr-un singur numar, constanta sau variabila
     //folosit pt verificarea corectitudinii bazei/ordinului logaritmilor/radicalilor
-    char token_aux[N][100];
+    char token_aux[N][DIMEN_MAXIMA_TOKEN];
     int lungime_aux = E.lungime;
     E.lungime = 0;
     extragereCuv(token_aux, s);

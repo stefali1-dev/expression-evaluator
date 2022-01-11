@@ -140,4 +140,3 @@ float Rest(float x, float y)
     if (DifInf(x) && fabs(y) > epsi) return fmod(x, y);
     else return infinit;
 }
-

@@ -421,8 +421,8 @@ void deseneaza(arbore A, Punct pozAnt, int niv, int col)
     if(!esteArboreNul(A))
     {
         Punct pozCurenta;
-        pozCurenta.x = (col + nrColoane(A -> st) + 1) * Celula.latime - Celula.latime / 2;
-        pozCurenta.y = niv * Celula.inaltime - Celula.inaltime / 2;
+        pozCurenta.x = (col + nrColoane(A -> st) + 1) * Celula.latime - Celula.latime / 2 + Fereastra.W*0.3;
+        pozCurenta.y = niv * Celula.inaltime - Celula.inaltime / 2 + Fereastra.H*0.3;
 
         deseneaza(A -> st, pozCurenta, niv + 1, col);
         deseneaza(A -> dr, pozCurenta, niv + 1, col + nrColoane(A -> st) + 1);

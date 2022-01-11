@@ -1,4 +1,5 @@
-#define N 100
+#define DIMEN_MAXIMA_TOKEN 20
+#define N 485
 // ------------ structuri ----------//
 
 struct anod
@@ -35,7 +36,7 @@ struct stivaOpd
 
 struct expr
 {
-    char token[N][100], sir[N*100];
+    char token[100][DIMEN_MAXIMA_TOKEN], sir[N];
     int lungime = 0;
 } E;
 
@@ -70,9 +71,9 @@ struct cel{
     int inaltime, latime;
 }Celula;
 
-struct buton{
+struct{
     int left, top, right, bottom;
-}ResetBtn, CasetaText, SubmitBtn;
+}CasetaText;
 
 struct {
     int W, H, paragraf = 1;

@@ -7,6 +7,7 @@
 
 #define ENTER 13
 #define BACKSPACE 8
+#define ESC 27
 
 #include "structuri.h"
 #include "functii_grafice.h"
@@ -19,42 +20,71 @@
 
 using namespace std;
 
+void initializareFrontPage(int W, int H);
+
+void reset(){
+    strcpy(E.sir, "");
+    cleardevice();
+    Fereastra.paragraf = 1;
+    for(int i=0; i<100; i++)
+        strcpy(E.token[i], "");
+    E.lungime = 0;
+    initOpd(Opd);
+    initOpr(Opr);
+}
+
 void afisareArbore(arbore A)
 {
 
-    Celula.inaltime = Fereastra.H / nrNiveluri(A);
-    Celula.latime = Fereastra.W / nrColoane(A);
-
+    Celula.inaltime = (Fereastra.H - Fereastra.H*0.3) / nrNiveluri(A);
+    Celula.latime = (Fereastra.W - Fereastra.W*0.3) / nrColoane(A);
+    line(Fereastra.W*0.3, 0, Fereastra.W*0.3, Fereastra.H);
     setlinestyle(0, 0, 3);
     setbkcolor(WHITE);
+    setfillstyle(EMPTY_FILL,WHITE);
     deseneaza(A, {-1, -1}, 1, 0);
+
+    setbkcolor(BLACK);
+    setfillstyle(EMPTY_FILL,BLACK);
+    char c = (char)getch();
+    if(c == ESC || c == ENTER || c == BACKSPACE){
+        reset();
+        initializareFrontPage(Fereastra.W, Fereastra.H);
+    }
 }
 
 void proceseazaSir()
 {
     cleardevice();
+
     extragereCuv(E.token, E.sir);
     if(verifCorect(E))
     {
         // -- afisare rezultat -- //
         formareArbore(E);
+
+        line(Fereastra.W*0.3, 0, Fereastra.W*0.3, Fereastra.H);
+
         cautaVar(E, L);
         arbore A;
         A = topOpd(Opd);
+
         float rezultat;
         rezultat = valoareExpresie(A, L);
+
         if(EsteNaN(rezultat))
         {
-                char s[] = "Expresia este nedeterminata.";
-                outtextxy(Fereastra.W/2 - textwidth(s)/2, Fereastra.H/32 - textheight(s)/2, s);
+            char s[] = "Expresia este nedeterminata.";
+            outtextxy(Fereastra.W/2 - textwidth(s)/2, Fereastra.H/32 - textheight(s)/2, s);
         }
+
         else
         {
             if(DifInf(rezultat))
             {
                 char s[] = "Valoarea expresiei este ";
                 char rez_arr[100];
-                sprintf(rez_arr, "%f", rezultat);
+                sprintf(rez_arr, "%.2f", rezultat);
                 strcat(s, rez_arr);
                 //cout << "Valoarea expresiei este " << rezultat << ".";
                 outtextxy(Fereastra.W/2 - textwidth(s)/2, Fereastra.H/32 - textheight(s)/2, s);
@@ -64,17 +94,17 @@ void proceseazaSir()
                 char s[] = "Valoare expresiei este infinita.";
                 outtextxy(Fereastra.W/2 - textwidth(s)/2, Fereastra.H/32 - textheight(s)/2, s);
             }
-        }
+            line(Fereastra.W*0.3, Fereastra.H*0.3, Fereastra.W, Fereastra.H*0.3);
 
-        // -- afisare arb -- //
-        afisareArbore(A);
+            afisareArbore(A);
+        }
     }
 
 }
 
 void backSpace(int x, int y, int len)
 {
-    setfillstyle(EMPTY_FILL,0);
+    setfillstyle(EMPTY_FILL,BLACK);
     bar(x - len, y, x, y + textheight("a"));
 }
 
@@ -83,7 +113,7 @@ void citesteSir()
     int len = 0, leftSpace = 10;
     int i = 0;
     int height = Fereastra.H/10 - textheight("a")/2;
-    char c_predecesor = 'a';
+    char c_predecesor = -1;
     while(i<485)
     {
         char c = -1;
@@ -92,20 +122,33 @@ void citesteSir()
 
         if((int)c == ENTER)
         {
-            E.sir[len] = '\0';
-            proceseazaSir();
-            break;
+            if(c_predecesor != -1){
+                E.sir[len] = '\0';
+                proceseazaSir();
+                break;
+            }
+            else
+                continue;
         }
 
         if((int)c == BACKSPACE)
         {
-            c_arr[0] = c_predecesor;
-            c_arr[1] = '\0';
-            backSpace(CasetaText.left + leftSpace, height, textwidth(c_arr));
-            \
-            leftSpace -= textwidth(c_arr);
-            len--;
+            if(leftSpace > textwidth(c_arr))
+            {
+                c_arr[0] = c_predecesor;
+                c_arr[1] = '\0';
+                backSpace(CasetaText.left + leftSpace, height, textwidth(c_arr));
+                leftSpace -= textwidth(c_arr);
+                if(len > 0)
+                    len--;
+            }
             continue;
+        }
+
+        if((int)c == ESC){
+            reset();
+            initializareFrontPage(Fereastra.W, Fereastra.H);
+            break;
         }
 
         E.sir[len] = c;
@@ -129,8 +172,7 @@ void citesteSir()
 
 void initializareFrontPage(int W, int H)
 {
-
-    char s[] = "Tasteaza functia. Apasa ENTER pentru finalizare, F5 pentru a reseta fereastra";
+    char s[] = "Tasteaza functia. Apasa ENTER pentru finalizare, ESC pentru a reseta fereastra, BACKSPACE pentru a da cu un caracter inapoi";
     outtextxy(W/2 - textwidth(s)/2, H/16 - textheight(s)/2, s);
 
     CasetaText.left = W/16;
@@ -142,27 +184,22 @@ void initializareFrontPage(int W, int H)
     citesteSir();
 }
 
-void initializareFereastra(int W, int H)
+void mainLoop(int W, int H)
 {
-    initwindow(W, H);
+    reset();
     initializareFrontPage(W, H);
-    setbkcolor(WHITE);
-
-    getch();
+    char c = (char)getch();
+    if(c == ESC || c == ENTER || c == BACKSPACE)
+        mainLoop(W, H);
 }
 
 int main()
 {
-    Fereastra.W = 900;
-    Fereastra.H = 700;
-    initializareFereastra(Fereastra.W, Fereastra.H);
+    Fereastra.W = 1300;
+    Fereastra.H = 800;
+    initwindow(Fereastra.W, Fereastra.H);
+    mainLoop(Fereastra.W, Fereastra.H);
     // extragere
-    /*
-    for(int i=0; i<E.lungime-1; i++)
-    {
-        cout<<E.token[i]<<endl;
-    }
-    cout<<endl;
-    */
+
     return 0;
 }
