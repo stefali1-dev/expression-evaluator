@@ -33,7 +33,6 @@ void afisareArbore(arbore A)
 void proceseazaSir()
 {
     cleardevice();
-
     extragereCuv(E.token, E.sir);
     if(verifCorect(E))
     {
@@ -46,17 +45,25 @@ void proceseazaSir()
         rezultat = valoareExpresie(A, L);
         if(EsteNaN(rezultat))
         {
-            char s[] = "Expresia este nedeterminata.";
-            outtextxy(Fereastra.W/2 - textwidth(s)/2, Fereastra.H/32 - textheight(s)/2, s);
+                char s[] = "Expresia este nedeterminata.";
+                outtextxy(Fereastra.W/2 - textwidth(s)/2, Fereastra.H/32 - textheight(s)/2, s);
         }
         else
         {
-            char s[] = "Valoarea expresiei este ";
-            char rez_arr[100];
-            sprintf(rez_arr, "%f", rezultat);
-            strcat(s, rez_arr);
-            //cout << "Valoarea expresiei este " << rezultat << ".";
-            outtextxy(Fereastra.W/2 - textwidth(s)/2, Fereastra.H/32 - textheight(s)/2, s);
+            if(DifInf(rezultat))
+            {
+                char s[] = "Valoarea expresiei este ";
+                char rez_arr[100];
+                sprintf(rez_arr, "%f", rezultat);
+                strcat(s, rez_arr);
+                //cout << "Valoarea expresiei este " << rezultat << ".";
+                outtextxy(Fereastra.W/2 - textwidth(s)/2, Fereastra.H/32 - textheight(s)/2, s);
+            }
+            else
+            {
+                char s[] = "Valoare expresiei este infinita.";
+                outtextxy(Fereastra.W/2 - textwidth(s)/2, Fereastra.H/32 - textheight(s)/2, s);
+            }
         }
 
         // -- afisare arb -- //
@@ -150,7 +157,12 @@ int main()
     Fereastra.H = 700;
     initializareFereastra(Fereastra.W, Fereastra.H);
     // extragere
-
-
+    /*
+    for(int i=0; i<E.lungime-1; i++)
+    {
+        cout<<E.token[i]<<endl;
+    }
+    cout<<endl;
+    */
     return 0;
 }
