@@ -2,10 +2,13 @@ void afiseazaFereastra(char s[])
 {
     if(textwidth(s) + 20 > Fereastra.W*0.2)
     {
+        int k = 0;
         char s_nou[100];
         for(int i=strlen(s)-1; i>=0; i--)
         {
             if(s[i] == ' ')
+                k++;
+            if(k==2)
             {
                 strcpy(s_nou, s+i+1);
                 s[i] = '\0';

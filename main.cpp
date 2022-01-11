@@ -184,9 +184,9 @@ void initializareFrontPage(int W, int H)
     char s[] = "Tasteaza functia. Apasa ENTER pentru finalizare, ESC pentru a reseta fereastra, BACKSPACE pentru a da cu un caracter inapoi";
     outtextxy(W/2 - textwidth(s)/2, H/16 - textheight(s)/2, s);
 
-    CasetaText.left = W/16;
+    CasetaText.left = W*3/16;
     CasetaText.top = H/10 - textheight(s)/1.5;
-    CasetaText.right = W*15/16;
+    CasetaText.right = W*13/16;
     CasetaText.bottom = H/5 + textheight(s)/1.5;
     rectangle(CasetaText.left, CasetaText.top, CasetaText.right, CasetaText.bottom);
 
@@ -210,6 +210,7 @@ int main()
     Fereastra.W = 1300;
     Fereastra.H = 950;
     initwindow(Fereastra.W, Fereastra.H);
+    settextstyle(DEFAULT_FONT, HORIZ_DIR, 0);
     mainLoop(Fereastra.W, Fereastra.H);
     // extragere
 
