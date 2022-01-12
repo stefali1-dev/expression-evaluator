@@ -105,9 +105,8 @@ void proceseazaSir()
             char s[] = "Pentru a salva imaginea arborelui apasa SPACE";
             outtextxy(Fereastra.W*0.6 - textwidth(s)/2, Fereastra.H/8 - textheight(s)/2, s);
 
-            afisareArbore(A);
-
         }
+        afisareArbore(A);
     }
 
 }
