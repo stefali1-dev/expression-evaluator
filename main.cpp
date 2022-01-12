@@ -37,7 +37,6 @@ void reset()
 
 void afisareArbore(arbore A)
 {
-
     Celula.inaltime = (Fereastra.H - Fereastra.H*0.2) / nrNiveluri(A);
     Celula.latime = (Fereastra.W - Fereastra.W*0.2) / nrColoane(A);
     line(Fereastra.W*0.2, 0, Fereastra.W*0.2, Fereastra.H);
@@ -101,10 +100,8 @@ void proceseazaSir()
 
             char s[] = "Pentru a salva imaginea arborelui apasa SPACE";
             outtextxy(Fereastra.W*0.6 - textwidth(s)/2, Fereastra.H/8 - textheight(s)/2, s);
-
-            afisareArbore(A);
-
         }
+        afisareArbore(A);
     }
 
 }
