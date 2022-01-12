@@ -98,6 +98,8 @@ float esteConst(char s[])
 
 bool esteVar(char s[])
 {
+    if(s[0] == '_')
+        return false;
     if(!(esteFunctie(s)) && !(esteNumar(s)) && !(esteSeparator(s[0])) && !(esteConst(s)) && !(esteOperatorLogic(s).id))
         return true;
     return false;
@@ -167,12 +169,21 @@ void extragereCuv(char token[][DIMEN_MAXIMA_TOKEN], char exp[])
                         }
                         if(auxf == 20 || auxf == 21)
                         {
+                            int parPatrDeschise = 0;
+                            int parPatrInchise = 1;
                             do
                             {
                                 p++;
                                 cuv[n++] = exp[p];
+                                if(exp[p] == '[')
+                                    parPatrInchise++;
+                                if(exp[p] == ']')
+                                    parPatrDeschise++;
                             }
-                            while(exp[p] != ']');
+                            while(parPatrDeschise != parPatrInchise);
+                            //am folosit acesti contori pentru a asigura, de exemplu, ca log[log[x]](y) va fi gasit ca greseala
+                            //intrucat, dupa conventie, baza unui logaritm poate fi numai nu numar pozitiv, o constanta sau o singura variabila
+                            //altfel, programul dadea eroare cand introduceai ceva de genul
                         }
                     }
                     j = p+1;
@@ -262,6 +273,11 @@ bool esteExpresieSimpla(char s[])
     E.lungime = 0;
     extragereCuv(token_aux, s);
     if(E.lungime != 2)
+    {
+        E.lungime = lungime_aux;
+        return false;
+    }
+    if(esteFunctie(token_aux[0]))
     {
         E.lungime = lungime_aux;
         return false;
@@ -667,4 +683,3 @@ void cautaVar(expr E, listaVar &L)
         }
     }
 }
-
