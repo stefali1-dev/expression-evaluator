@@ -124,47 +124,49 @@ void eliminareSpatii(char exp[])
         }
 }
 
-int cazExceptieToken(char token[][DIMEN_MAXIMA_TOKEN], char exp[], int i)
+int cazExceptieToken(char token[][DIMEN_MAXIMA_TOKEN], int i)
 {
-    if(exp[i] == '+' && ((E.lungime == 0) || token[E.lungime-1][0] == '('))
+    if(E.sir[i] == '+' && ((E.lungime == 0) || token[E.lungime-1][0] == '('))
         return 1;
-    if(exp[i] == '-' && ((E.lungime == 0) || token[E.lungime-1][0] == '('))
+    if(E.sir[i] == '-' && ((E.lungime == 0) || token[E.lungime-1][0] == '('))
         return 2;
-    if(strchr("<>", exp[i]) && exp[i+1] == '=')
+    if(strchr("<>", E.sir[i]) && E.sir[i+1] == '=')
         return 3;
     return 0;
 }
 
-void extragereCuv(char token[][DIMEN_MAXIMA_TOKEN], char exp[])
+void extragereCuv(char token[][DIMEN_MAXIMA_TOKEN])
 {
-    eliminareSpatii(exp);
-    int len = strlen(exp);
+    eliminareSpatii(E.sir);
+    int len = strlen(E.sir);
     //nu este foarte eficient sa iteram pe expresie de doua ori, trebuie imbunatatit
     for(int j=0, i=0; j <= len; j++)
     {
-        int OpL = esteOperatorLogic(exp+j).len;
-        if(esteSeparator(exp[j]) || OpL)
+        int OpL = esteOperatorLogic(E.sir+j).len;
+        if(esteSeparator(E.sir[j]) || OpL)
         {
             int n=0;
             char cuv[N] = "";
             for(int p = i; p < j; p++)
             {
-                cuv[n++] = exp[p];
+                //sinx
+                cuv[n++] = E.sir[p];
                 int auxf = esteFunctie(cuv);
                 bool auxn = esteNumar(cuv);
                 if(auxf)
                 {
-                    if((auxf == 1 || auxf == 2 || auxf == 3 || auxf == 4) && exp[p+1] == 'h')
+                    if((auxf == 1 || auxf == 2 || auxf == 3 || auxf == 4) && E.sir[p+1] == 'h')
                     {
                         p++;
-                        cuv[n++] = exp[p];
+                        cuv[n++] = E.sir[p];
                     }
                     else
                     {
-                        if(auxf == 19 && exp[p+1] == '[')
+                        //log[
+                        if(auxf == 19 && E.sir[p+1] == '[')
                         {
                             p++;
-                            cuv[n++] = exp[p];
+                            cuv[n++] = E.sir[p];
                             auxf = 20;
                         }
                         if(auxf == 20 || auxf == 21)
@@ -174,10 +176,10 @@ void extragereCuv(char token[][DIMEN_MAXIMA_TOKEN], char exp[])
                             do
                             {
                                 p++;
-                                cuv[n++] = exp[p];
-                                if(exp[p] == '[')
+                                cuv[n++] = E.sir[p];
+                                if(E.sir[p] == '[')
                                     parPatrInchise++;
-                                if(exp[p] == ']')
+                                if(E.sir[p] == ']')
                                     parPatrDeschise++;
                             }
                             while(parPatrDeschise != parPatrInchise);
@@ -191,9 +193,9 @@ void extragereCuv(char token[][DIMEN_MAXIMA_TOKEN], char exp[])
                 }
                 else if(auxn)
                 {
-                    if(!esteNumar(exp+p))
+                    if(!esteNumar(E.sir+p))
                     {
-                        if(exp[p-1] == '.')
+                        if(E.sir[p-1] == '.')
                         {
                             j = p-1;
                             n -= 2;
@@ -214,23 +216,22 @@ void extragereCuv(char token[][DIMEN_MAXIMA_TOKEN], char exp[])
 
             if(OpL)
             {
-                strncpy(token[E.lungime++], exp+j, OpL);
+                strncpy(token[E.lungime++], E.sir+j, OpL);
                 j += OpL - 1;
             }
             else
             {
-                switch(cazExceptieToken(token, exp, j))
+                switch(cazExceptieToken(token, j))
                 {
                 case 0:
                 {
                     //nici o exceptie, caz "default"
-                    token[E.lungime][0] = exp[j];
+                    token[E.lungime][0] = E.sir[j];
                     token[E.lungime][1] = '\0';
                     break;
                 }
                 case 1:
                 {
-                    //plus unar
                     token[E.lungime][0] = '@';
                     token[E.lungime][1] = '@';
                     token[E.lungime][2] = '\0';
@@ -247,8 +248,8 @@ void extragereCuv(char token[][DIMEN_MAXIMA_TOKEN], char exp[])
                 case 3:
                 {
                     //mai mare/mic sau egal
-                    token[E.lungime][0] = exp[j];
-                    token[E.lungime][1] = exp[j+1];
+                    token[E.lungime][0] = E.sir[j];
+                    token[E.lungime][1] = E.sir[j+1];
                     token[E.lungime][2] = '\0';
                     j++;
                     break;
@@ -267,21 +268,31 @@ void extragereCuv(char token[][DIMEN_MAXIMA_TOKEN], char exp[])
 bool esteExpresieSimpla(char s[])
 {
     //verifica daca o expresie este formata dintr-un singur numar, constanta sau variabila
+    //"x", "2", "pi" sunt expresii simple
+    //"2*x", "2+2", "2x", "sin", "sin(x)" nu sunt expresii simple si toate au mai multe token-uri
+    //de aceea este folosit extragereCuv
     //folosit pt verificarea corectitudinii bazei/ordinului logaritmilor/radicalilor
-    char token_aux[N][DIMEN_MAXIMA_TOKEN];
+    char token_aux[100][DIMEN_MAXIMA_TOKEN];
     int lungime_aux = E.lungime;
+    char sir_aux[N];
+    strcpy(sir_aux, E.sir);
+
     E.lungime = 0;
-    extragereCuv(token_aux, s);
+    strcpy(E.sir, s);
+    extragereCuv(token_aux);
     if(E.lungime != 2)
     {
         E.lungime = lungime_aux;
+        strcpy(E.sir, sir_aux);
         return false;
     }
     if(esteFunctie(token_aux[0]))
     {
+        strcpy(E.sir, sir_aux);
         E.lungime = lungime_aux;
         return false;
     }
+    strcpy(E.sir, sir_aux);
     E.lungime = lungime_aux;
     return true;
 }
@@ -349,7 +360,7 @@ int tipToken(char s[])
     //daca functia returneaza 0, inseamna ca am intalnit un caracter ilegal
 }
 
-bool verifCorect(expr E)
+bool verifCorect()
 {
     bool ok; //pt a verifica daca am gasit greseala
     int ok_baza = 0; //pt a verifica daca baza/ordinul unui logaritm/radical este corect
@@ -372,6 +383,8 @@ bool verifCorect(expr E)
             len--;
         switch(tipToken(E.token[i]))
         {
+        //verificam, pentru fiecare token, daca token-ul urmator este valid
+        //de exemplu, dupa "+" poate urma "x" dar dupa "(" nu poate urma ")"
         case 0:
         {
             ok = false;
@@ -408,9 +421,13 @@ bool verifCorect(expr E)
             int auxf = esteFunctie(E.token[i]);
             if(auxf == 20 || auxf == 21)
             {
-                char baza[100];
+                char baza[20];
                 int j;
                 j = auxf-16;
+                // daca auxf == 20 sau 21, atunci avem E.token[] este fie log[...] fie root[...]
+                // in momentul de fata, vrem sa salvam baza/ordinul log./rad. in baza[] si incepem
+                // sa salvam de la E.token[auxf-16], adica E.token[4] sau E.token[5], care coincide, intrucat:
+                // "log[" -> 4 caractere, "root[" -> 5 caractere
                 len_baza = 0;
                 do
                 {
@@ -420,6 +437,12 @@ bool verifCorect(expr E)
                 baza[len_baza++] = '\0';
                 if(!esteExpresieSimpla(baza))
                     ok_baza = auxf - 19;
+                //verificam pentru ca sa nu avem expresii complexe (precum "2+2") ca baza/ordinul unui logaritm/radical
+                //ce este numai o conventie, pur si simplu nu am adaugat optiunea din motiv de simplicitate
+                //ok_baza == 1 cand baza unui logaritm nu este expresie simpla
+                //ok_baza == 2 cand ordinul unui radical nu este expresie simpla
+                //ok_baza == 0 cand nici nu intram in cazul asta (token-ul nu este "log[...]" sau "root[...]")
+                //sau cand este dar baza/ordinul este un singur numar pozitiv, o constanta sau o singura variabila
             }
             if(tipToken(E.token[i+1]) != 1 || tipToken(E.token[i+1]) == 7)
                 ok = false;
@@ -487,6 +510,7 @@ bool verifCorect(expr E)
             inlocuireUnar(E.token[i], token_nou);
             if(tipToken(E.token[i]) == 0)
             {
+                //orice token cu tip 0 este un caracter nedefinit, deci este considerat ilegal
                 strcpy(temp, "-Eroare pe pozitia ");
                 sprintf(poz_arr, "%d", len);
                 strcat(temp, poz_arr);
@@ -565,7 +589,7 @@ bool verifCorect(expr E)
 
 //-------------- functii pt variabile ------------//
 
-int dejaExista(char s[], listaVar L)
+int dejaExista(char s[])
 {
     //verifica daca deja am dat valoarea variabilei cu numele salvat in s
     //variabile sunt salvate ca o lista liniara practic, iar aceasta functie va returna indicele variabilei cu numele salvat in s in lista L
@@ -575,13 +599,13 @@ int dejaExista(char s[], listaVar L)
     return 0;
 }
 
-float valoareVar(char s[], listaVar L)
+float valoareVar(char s[])
 {
     //returneaza valoarea variabilei cu numele salvat in s
-    return L.var[dejaExista(s, L) - 1].valoare;
+    return L.var[dejaExista(s) - 1].valoare;
 }
 
-void inserareVar(char s[], char numar[], listaVar &L)
+void inserareVar(char s[], char numar[])
 {
     strcpy(L.var[L.nrElemente].nume, s);
     L.nrElemente++;
@@ -603,17 +627,16 @@ void inserareVar(char s[], char numar[], listaVar &L)
     L.var[L.nrElemente-1].valoare = atof(numar);
 }
 
-void cautaVar(expr E, listaVar &L)
+void cautaVar()
 {
     //cauta si defineste variabilele din expresia E
-    L.nrElemente = 0;
     char s[100];
     char numar[100];
     char temp[1000];
     for(int i = 0; i < E.lungime; i++)
     {
         strcpy(s, E.token[i]);
-        if(esteVar(s) && !(dejaExista(s, L)))
+        if(esteVar(s) && !(dejaExista(s)))
         {
             strcpy(temp, "Introduceti valoarea");
             afiseazaFereastra(temp);
@@ -638,7 +661,7 @@ void cautaVar(expr E, listaVar &L)
 
                 strcpy(numar, citesteSiAfiseaza());
             }
-            inserareVar(s, numar, L);
+            inserareVar(s, numar);
         }
 
         //urmatoarele doua conditii sunt pentru cazul in care avem baza unui logaritm/ordinul unui radical ca variabila
@@ -655,7 +678,7 @@ void cautaVar(expr E, listaVar &L)
             }
             while(s[j] != ']');
             baza[n++] = '\0';
-            if(esteVar(baza) && !(dejaExista(baza, L)))
+            if(esteVar(baza) && !(dejaExista(baza)))
             {
                 strcpy(temp, "Introduceti valoarea");
                 afiseazaFereastra(temp);
@@ -678,7 +701,7 @@ void cautaVar(expr E, listaVar &L)
                     afiseazaFereastra(temp);
                     strcpy(numar, citesteSiAfiseaza());
                 }
-                inserareVar(baza, numar, L);
+                inserareVar(baza, numar);
             }
         }
     }
