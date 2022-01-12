@@ -545,7 +545,7 @@ bool verifCorect(expr E)
     }
     else if(nr > 1)
     {
-        strcpy(temp, "-Eroare: o paranteza nu a fost inchisa");
+        strcpy(temp, "-Eroare: ");
         sprintf(poz_arr, "%d", nr);
         strcat(temp, poz_arr);
         strcat(temp, " paranteze nu au fost inchise");
@@ -555,9 +555,9 @@ bool verifCorect(expr E)
     }
     else if(nr < 0)
     {
-        strcpy(temp, "-Eroare: o paranteza nu a fost inchisa");
+        strcpy(temp, "-Eroare: sunt prea multe paranteze de tip ')'");
         afiseazaFereastra(temp);
-        cout << "-Eroare: sunt prea multe paranteze de tip ')'";
+        //cout << "-Eroare: sunt prea multe paranteze de tip ')'";
         corect = false;
     }
     return corect;
@@ -670,11 +670,3 @@ void cautaVar(expr E, listaVar &L)
         }
     }
 }
-
-void afisareVar(listaVar L)
-{
-    //functie pt testare
-    for(int i = 0; i < L.nrElemente; i++)
-        cout << "Variabila " << L.var[i].nume << " are valoarea " << L.var[i].valoare << "." << endl;
-}
-
