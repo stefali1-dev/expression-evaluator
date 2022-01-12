@@ -4,7 +4,7 @@
 //-------------- functii pt formare arbore ------------//
 
 
-void formareArbore(expr E)
+void formareArbore()
 {
     initOpr(Opr);
     initOpd(Opd);
@@ -74,7 +74,7 @@ void formareArbore(expr E)
     }
 }
 
-float valoareExpresie(arbore A, listaVar L)
+float valoareExpresie(arbore A)
 {
     char val[20];
     strcpy(val, A -> val);
@@ -88,7 +88,7 @@ float valoareExpresie(arbore A, listaVar L)
     }
     if(esteVar(val))
     {
-        return valoareVar(val, L);
+        return valoareVar(val);
     }
     if(esteSeparator(val[0]))
     {
@@ -96,66 +96,66 @@ float valoareExpresie(arbore A, listaVar L)
         {
         case '+':
         {
-            return Plus(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
+            return Plus(valoareExpresie(A -> st), valoareExpresie(A -> dr));
             break;
         }
         case '-':
         {
-            return Minus(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
+            return Minus(valoareExpresie(A -> st), valoareExpresie(A -> dr));
             break;
         }
         case '*':
         {
-            return Inmultit(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
+            return Inmultit(valoareExpresie(A -> st), valoareExpresie(A -> dr));
             break;
         }
         case '^':
         {
-            return Putere(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
+            return Putere(valoareExpresie(A -> st), valoareExpresie(A -> dr));
             break;
         }
         case '/':
         {
-            return Impartit(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
+            return Impartit(valoareExpresie(A -> st), valoareExpresie(A -> dr));
             break;
         }
         case '=':
         {
-            return Egal(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
+            return Egal(valoareExpresie(A -> st), valoareExpresie(A -> dr));
             break;
         }
         case '>':
         {
             if(val[1] == '=')
-                return MaiMareEgal(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
-            return MaiMare(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
+                return MaiMareEgal(valoareExpresie(A -> st), valoareExpresie(A -> dr));
+            return MaiMare(valoareExpresie(A -> st), valoareExpresie(A -> dr));
             break;
         }
         case '<':
         {
             if(val[1] == '=')
-                return MaiMicEgal(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
-            return MaiMic(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
+                return MaiMicEgal(valoareExpresie(A -> st), valoareExpresie(A -> dr));
+            return MaiMic(valoareExpresie(A -> st), valoareExpresie(A -> dr));
             break;
         }
         case '#':
         {
-            return Diferit(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
+            return Diferit(valoareExpresie(A -> st), valoareExpresie(A -> dr));
             break;
         }
         case '%':
         {
-            return Rest(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
+            return Rest(valoareExpresie(A -> st), valoareExpresie(A -> dr));
             break;
         }
         case '@':
         {
-            return Plus(0, valoareExpresie(A -> dr, L));
+            return Plus(0, valoareExpresie(A -> dr));
             break;
         }
         case '~':
         {
-            return Minus(0, valoareExpresie(A -> dr, L));
+            return Minus(0, valoareExpresie(A -> dr));
             break;
         }
         }
@@ -166,32 +166,32 @@ float valoareExpresie(arbore A, listaVar L)
         {
         case 1:
         {
-            return Not(valoareExpresie(A -> dr, L));
+            return Not(valoareExpresie(A -> dr));
             break;
         }
         case 2:
         {
-            return And(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
+            return And(valoareExpresie(A -> st), valoareExpresie(A -> dr));
             break;
         }
         case 3:
         {
-            return Or(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
+            return Or(valoareExpresie(A -> st), valoareExpresie(A -> dr));
             break;
         }
         case 4:
         {
-            return Nand(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
+            return Nand(valoareExpresie(A -> st), valoareExpresie(A -> dr));
             break;
         }
         case 5:
         {
-            return Nor(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
+            return Nor(valoareExpresie(A -> st), valoareExpresie(A -> dr));
             break;
         }
         case 6:
         {
-            return Xor(valoareExpresie(A -> st, L), valoareExpresie(A -> dr, L));
+            return Xor(valoareExpresie(A -> st), valoareExpresie(A -> dr));
             break;
         }
         }
@@ -201,97 +201,97 @@ float valoareExpresie(arbore A, listaVar L)
         //"sin", "cos", "tan", "cotan", "abs", "exp", "sqrt", "floor", "ceil", "round", "arcsin", "arccos", "arctan", "arccot", "sinh", "cosh", "tanh", "cotanh", "log", "log[x]", "root[x]"
         case 1:
         {
-            return Sinus(valoareExpresie(A -> dr, L));
+            return Sinus(valoareExpresie(A -> dr));
             break;
         }
         case 2:
         {
-            return Cosinus(valoareExpresie(A -> dr, L));
+            return Cosinus(valoareExpresie(A -> dr));
             break;
         }
         case 3:
         {
-            return Tangenta(valoareExpresie(A -> dr, L));
+            return Tangenta(valoareExpresie(A -> dr));
             break;
         }
         case 4:
         {
-            return Cotangenta(valoareExpresie(A -> dr, L));
+            return Cotangenta(valoareExpresie(A -> dr));
             break;
         }
         case 5:
         {
-            return Modul(valoareExpresie(A -> dr, L));
+            return Modul(valoareExpresie(A -> dr));
             break;
         }
         case 6:
         {
-            return Exponential(valoareExpresie(A -> dr, L));
+            return Exponential(valoareExpresie(A -> dr));
             break;
         }
         case 7:
         {
-            return Radical(valoareExpresie(A -> dr, L));
+            return Radical(valoareExpresie(A -> dr));
             break;
         }
         case 8:
         {
-            return ParteIntreagaInf(valoareExpresie(A -> dr, L));
+            return ParteIntreagaInf(valoareExpresie(A -> dr));
             break;
         }
         case 9:
         {
-            return ParteIntreagaSup(valoareExpresie(A -> dr, L));
+            return ParteIntreagaSup(valoareExpresie(A -> dr));
             break;
         }
         case 10:
         {
-            return Rotunjit(valoareExpresie(A -> dr, L));
+            return Rotunjit(valoareExpresie(A -> dr));
             break;
         }
         case 11:
         {
-            return Arcsinus(valoareExpresie(A -> dr, L));
+            return Arcsinus(valoareExpresie(A -> dr));
             break;
         }
         case 12:
         {
-            return Arccosinus(valoareExpresie(A -> dr, L));
+            return Arccosinus(valoareExpresie(A -> dr));
             break;
         }
         case 13:
         {
-            return Arctangenta(valoareExpresie(A -> dr, L));
+            return Arctangenta(valoareExpresie(A -> dr));
             break;
         }
         case 14:
         {
-            return Arccotangenta(valoareExpresie(A -> dr, L));
+            return Arccotangenta(valoareExpresie(A -> dr));
             break;
         }
         case 15:
         {
-            return SinusHiper(valoareExpresie(A -> dr, L));
+            return SinusHiper(valoareExpresie(A -> dr));
             break;
         }
         case 16:
         {
-            return CosinusHiper(valoareExpresie(A -> dr, L));
+            return CosinusHiper(valoareExpresie(A -> dr));
             break;
         }
         case 17:
         {
-            return TangentaHiper(valoareExpresie(A -> dr, L));
+            return TangentaHiper(valoareExpresie(A -> dr));
             break;
         }
         case 18:
         {
-            return CotangentaHiper(valoareExpresie(A -> dr, L));
+            return CotangentaHiper(valoareExpresie(A -> dr));
             break;
         }
         case 19:
         {
-            return Logaritm(valoareExpresie(A -> dr, L));
+            return Logaritm(valoareExpresie(A -> dr));
             break;
         }
         case 20:
@@ -309,14 +309,14 @@ float valoareExpresie(arbore A, listaVar L)
             baza[j] = '\0';
             if(esteVar(baza))
             {
-                return LogaritmBazaB(valoareExpresie(A -> dr, L), valoareVar(baza, L));
+                return LogaritmBazaB(valoareExpresie(A -> dr), valoareVar(baza));
             }
             if(esteConst(baza))
             {
                 b = esteConst(baza);
             }
             else b = atof(baza);
-            return LogaritmBazaB(valoareExpresie(A -> dr, L), b);
+            return LogaritmBazaB(valoareExpresie(A -> dr), b);
             break;
         }
         case 21:
@@ -334,14 +334,14 @@ float valoareExpresie(arbore A, listaVar L)
             baza[j] = '\0';
             if(esteVar(baza))
             {
-                return RadicalOrdinN(valoareExpresie(A -> dr, L), valoareVar(baza, L));
+                return RadicalOrdinN(valoareExpresie(A -> dr), valoareVar(baza));
             }
             if(esteConst(baza))
             {
                 b = esteConst(baza);
             }
             else b = atof(baza);
-            return RadicalOrdinN(valoareExpresie(A -> dr, L), b);
+            return RadicalOrdinN(valoareExpresie(A -> dr), b);
             break;
         }
         }
