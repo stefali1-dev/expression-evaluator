@@ -129,7 +129,6 @@ void citesteSir()
         char c = -1;
         char c_arr[2];
         c = (char)getch();
-        cout << i << endl;
         if((int)c == ENTER)
         {
             if(c_predecesor != -1)
