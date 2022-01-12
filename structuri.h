@@ -49,7 +49,7 @@ struct variabila
 struct listaVar
 {
     variabila var[100];
-    int nrElemente;
+    int nrElemente = 0;
 } L;
 //lista liniara cu variabile
 
