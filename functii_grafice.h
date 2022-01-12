@@ -1,6 +1,6 @@
 void afiseazaFereastra(char s[])
 {
-    if(Fereastra.paragraf >= 29)
+    if(Fereastra.paragraf >= 28)
     {
         Fereastra.paragraf = 1;
         cleardevice();

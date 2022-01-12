@@ -70,7 +70,6 @@ void proceseazaSir()
         // -- afisare rezultat -- //
         formareArbore(E);
 
-        line(Fereastra.W*0.2, 0, Fereastra.W*0.2, Fereastra.H);
 
         cautaVar(E, L);
         arbore A;
