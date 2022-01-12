@@ -1,3 +1,4 @@
+//----------------- functii grafice -----------
 void afiseazaFereastra(char s[])
 {
     if(Fereastra.paragraf >= 28)
@@ -9,8 +10,6 @@ void afiseazaFereastra(char s[])
     outtextxy(20, Fereastra.paragraf * Fereastra.H/30, s);
     Fereastra.paragraf++;
 }
-
-
 
 char* citesteSiAfiseaza()
 {

@@ -39,7 +39,6 @@ void reset()
 
 void afisareArbore(arbore A)
 {
-
     Celula.inaltime = (Fereastra.H - Fereastra.H*0.2) / nrNiveluri(A);
     Celula.latime = (Fereastra.W - Fereastra.W*0.2) / nrColoane(A);
     line(Fereastra.W*0.2, 0, Fereastra.W*0.2, Fereastra.H);
@@ -50,33 +49,24 @@ void afisareArbore(arbore A)
 
     setbkcolor(BLACK);
     setfillstyle(EMPTY_FILL,BLACK);
-    char c = (char)getch();
-    if(c == TAB || c == ENTER || c == BACKSPACE)
-    {
-        reset();
-        initializareFrontPage();
-    }
-    if(c == ESC)
-        exit(0);
 }
 
 void proceseazaSir()
 {
     cleardevice();
 
-    extragereCuv(E.token, E.sir);
-    if(verifCorect(E))
+    extragereCuv(E.token);
+    if(verifCorect())
     {
         // -- afisare rezultat -- //
-        formareArbore(E);
+        formareArbore();
 
-
-        cautaVar(E, L);
+        cautaVar();
         arbore A;
         A = topOpd(Opd);
 
         float rezultat;
-        rezultat = valoareExpresie(A, L);
+        rezultat = valoareExpresie(A);
 
         if(EsteNaN(rezultat))
         {
@@ -222,7 +212,5 @@ int main()
     initwindow(Fereastra.W, Fereastra.H);
     settextstyle(DEFAULT_FONT, HORIZ_DIR, 0);
     mainLoop();
-    // extragere
-
     return 0;
 }

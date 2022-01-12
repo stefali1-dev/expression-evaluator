@@ -282,8 +282,8 @@ bool esteExpresieSimpla(char s[])
     extragereCuv(token_aux);
     if(E.lungime != 2)
     {
-        E.lungime = lungime_aux;
         strcpy(E.sir, sir_aux);
+        E.lungime = lungime_aux;
         return false;
     }
     if(esteFunctie(token_aux[0]))
@@ -444,10 +444,8 @@ bool verifCorect()
                 //ok_baza == 0 cand nici nu intram in cazul asta (token-ul nu este "log[...]" sau "root[...]")
                 //sau cand este dar baza/ordinul este un singur numar pozitiv, o constanta sau o singura variabila
             }
-            if(tipToken(E.token[i+1]) != 1 || tipToken(E.token[i+1]) == 7)
+            if(tipToken(E.token[i+1]) != 1 && tipToken(E.token[i+1]) != 0)
                 ok = false;
-            if(tipToken(E.token[i+1]) == 0)
-                ok = true;
             break;
         }
         case 6:
@@ -458,7 +456,7 @@ bool verifCorect()
         }
         case 7:
         {
-            if(tipToken(E.token[i+1]) == 2 || tipToken(E.token[i+1]) == 4)
+            if(tipToken(E.token[i+1]) == 2 || tipToken(E.token[i+1]) == 3 || tipToken(E.token[i+1]) == 4)
                 ok = false;
             break;
         }
@@ -508,6 +506,9 @@ bool verifCorect()
             }
             char token_nou[100];
             inlocuireUnar(E.token[i], token_nou);
+            //@@ -> +
+            //~~ -> -
+            //restul ramane neschimbat
             if(tipToken(E.token[i]) == 0)
             {
                 //orice token cu tip 0 este un caracter nedefinit, deci este considerat ilegal
