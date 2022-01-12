@@ -33,6 +33,11 @@ void reset()
     for(int i=0; i<100; i++)
         strcpy(E.token[i], "");
     E.lungime = 0;
+    for(int i=0; i<100; i++)
+    {
+        strcpy(L.var[i].nume, "");
+    }
+    L.nrElemente = 0;
     initOpd(Opd);
     initOpr(Opr);
 }
