@@ -98,6 +98,8 @@ float esteConst(char s[])
 
 bool esteVar(char s[])
 {
+    if(s[0] == '_')
+        return false;
     if(!(esteFunctie(s)) && !(esteNumar(s)) && !(esteSeparator(s[0])) && !(esteConst(s)) && !(esteOperatorLogic(s).id))
         return true;
     return false;
