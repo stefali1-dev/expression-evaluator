@@ -1,23 +1,5 @@
 void afiseazaFereastra(char s[])
 {
-    if(textwidth(s) + 20 > Fereastra.W*0.2)
-    {
-        int k = 0;
-        char s_nou[100];
-        for(int i=strlen(s)-1; i>=0; i--)
-        {
-            if(s[i] == ' ')
-                k++;
-            if(k==2)
-            {
-                strcpy(s_nou, s+i+1);
-                s[i] = '\0';
-                afiseazaFereastra(s);
-                afiseazaFereastra(s_nou);
-                return;
-            }
-        }
-    }
     if(Fereastra.paragraf >= 29)
     {
         Fereastra.paragraf = 1;
@@ -28,6 +10,8 @@ void afiseazaFereastra(char s[])
     Fereastra.paragraf++;
 }
 
+
+
 char* citesteSiAfiseaza()
 {
     char c, c_arr[2];
@@ -36,6 +20,8 @@ char* citesteSiAfiseaza()
     int leftSpace = 20;
     while((int)(c = (char)getch()) != ENTER)
     {
+        if(c == ESC)
+            exit(0);
         s[len] = c;
         len++;
         c_arr[0] = c;

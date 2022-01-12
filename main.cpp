@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 #include <winbgim.h>
@@ -7,8 +8,9 @@
 
 #define ENTER 13
 #define BACKSPACE 8
-#define ESC 27
+#define TAB 9
 #define SPACE 32
+#define ESC 27
 
 #include "structuri.h"
 #include "functii_grafice.h"
@@ -21,7 +23,7 @@
 
 using namespace std;
 
-void initializareFrontPage(int W, int H);
+void initializareFrontPage();
 
 void reset()
 {
@@ -37,6 +39,7 @@ void reset()
 
 void afisareArbore(arbore A)
 {
+
     Celula.inaltime = (Fereastra.H - Fereastra.H*0.2) / nrNiveluri(A);
     Celula.latime = (Fereastra.W - Fereastra.W*0.2) / nrColoane(A);
     line(Fereastra.W*0.2, 0, Fereastra.W*0.2, Fereastra.H);
@@ -48,11 +51,13 @@ void afisareArbore(arbore A)
     setbkcolor(BLACK);
     setfillstyle(EMPTY_FILL,BLACK);
     char c = (char)getch();
-    if(c == ESC || c == ENTER || c == BACKSPACE)
+    if(c == TAB || c == ENTER || c == BACKSPACE)
     {
         reset();
-        initializareFrontPage(Fereastra.W, Fereastra.H);
+        initializareFrontPage();
     }
+    if(c == ESC)
+        exit(0);
 }
 
 void proceseazaSir()
@@ -100,8 +105,10 @@ void proceseazaSir()
 
             char s[] = "Pentru a salva imaginea arborelui apasa SPACE";
             outtextxy(Fereastra.W*0.6 - textwidth(s)/2, Fereastra.H/8 - textheight(s)/2, s);
+
+            afisareArbore(A);
+
         }
-        afisareArbore(A);
     }
 
 }
@@ -116,21 +123,21 @@ void citesteSir()
 {
     int len = 0, leftSpace = 10;
     int i = 0;
-    int height = Fereastra.H/10 - textheight("a")/2;
+    int height = Fereastra.H*4/16 - textheight("a")/2;
     char c_predecesor = -1;
-    while(i<485)
+    while(i<320)
     {
         char c = -1;
         char c_arr[2];
         c = (char)getch();
-
+        cout << i << endl;
         if((int)c == ENTER)
         {
             if(c_predecesor != -1)
             {
                 E.sir[len] = '\0';
                 proceseazaSir();
-                break;
+                return;
             }
             else
                 continue;
@@ -150,11 +157,15 @@ void citesteSir()
             continue;
         }
 
-        if((int)c == ESC)
+        if((int)c == TAB)
         {
             reset();
-            initializareFrontPage(Fereastra.W, Fereastra.H);
+            initializareFrontPage();
             break;
+        }
+
+        else if((int)c == ESC){
+            exit(0);
         }
 
         E.sir[len] = c;
@@ -174,32 +185,37 @@ void citesteSir()
         c_predecesor = c;
     }
     E.sir[len] = '\0';
+    proceseazaSir();
 }
 
-void initializareFrontPage(int W, int H)
+void initializareFrontPage()
 {
-    char s[] = "Tasteaza functia. Apasa ENTER pentru finalizare, ESC pentru a reseta fereastra, BACKSPACE pentru a da cu un caracter inapoi";
-    outtextxy(W/2 - textwidth(s)/2, H/16 - textheight(s)/2, s);
+    char s[] = "Tasteaza functia. Apasa ENTER pentru finalizare, TAB pentru a reseta fereastra, BACKSPACE pentru a da cu un caracter inapoi,";
+    outtextxy(Fereastra.W/2 - textwidth(s)/2, Fereastra.H/16 - textheight(s)/2, s);
+    strcpy(s, "ESC pentru a termina programul");
+    outtextxy(Fereastra.W/2 - textwidth(s)/2, Fereastra.H*2/16 - textheight(s)/2, s);
 
-    CasetaText.left = W*3/16;
-    CasetaText.top = H/10 - textheight(s)/1.5;
-    CasetaText.right = W*13/16;
-    CasetaText.bottom = H/5 + textheight(s)/1.5;
+    CasetaText.left = Fereastra.W*3/16;
+    CasetaText.top = Fereastra.H*4/16 - textheight(s)/1.5;
+    CasetaText.right = Fereastra.W*13/16;
+    CasetaText.bottom = Fereastra.H*5/16 + textheight(s)/1.5;
     rectangle(CasetaText.left, CasetaText.top, CasetaText.right, CasetaText.bottom);
 
     citesteSir();
 }
 
-void mainLoop(int W, int H)
+void mainLoop()
 {
     reset();
-    initializareFrontPage(W, H);
+    initializareFrontPage();
     char c = (char)getch();
     if(c == SPACE)
     {
         writeimagefile("ArboreExpr.bmp", Fereastra.W*0.2, Fereastra.H*0.2, Fereastra.W, Fereastra.H);
     }
-    mainLoop(W, H);
+    else if(c == ESC)
+        exit(0);
+    mainLoop();
 }
 
 int main()
@@ -208,7 +224,7 @@ int main()
     Fereastra.H = 950;
     initwindow(Fereastra.W, Fereastra.H);
     settextstyle(DEFAULT_FONT, HORIZ_DIR, 0);
-    mainLoop(Fereastra.W, Fereastra.H);
+    mainLoop();
     // extragere
 
     return 0;
