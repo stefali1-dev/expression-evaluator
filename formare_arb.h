@@ -48,6 +48,7 @@ void formareArbore()
 
                     noddr = Opd.varf -> nod;
                     nod -> dr = noddr;
+
                     nod -> st = NULL;
 
                     if(aritate(Opr.varf -> val) == 2)
@@ -57,7 +58,6 @@ void formareArbore()
                     }
                     popOpd(Opd);
 
-                    //if(esteSeparator(val[0]) || esteFunctie(val))
                     pushOpd(Opd, nod);
                     popOpr(Opr);
                 }
@@ -67,7 +67,7 @@ void formareArbore()
                     if(Opr.varf -> val[0] != '(' || E.token[i][0] != ')')
                         pushOpr(Opr, E.token[i]);
 
-                    else popOpr(Opr);
+                    else popOpr(Opr); // stergem '('
             }
         }
         i++;
