@@ -378,7 +378,7 @@ bool verifCorect()
     int nrParanteze1 = 0;
     int nrParanteze2 = 0;
 
-    char temp[1000];
+    char temp[100];
     int poz;
     char poz_arr[100];
 
