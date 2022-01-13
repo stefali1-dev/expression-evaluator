@@ -43,6 +43,7 @@ void formareArbore()
                     nod = new anod;
                     strcpy(nod -> val, Opr.varf -> val);
 
+                    // nod dreapta
                     noddr = Opd.varf -> nod;
                     nod -> dr = noddr;
 
@@ -50,6 +51,7 @@ void formareArbore()
 
                     if(aritate(Opr.varf -> val) == 2)
                     {
+                        // nod stanga
                         nod -> st = Opd.varf -> urm -> nod;
                         popOpd(Opd);
                     }

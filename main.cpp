@@ -11,6 +11,7 @@
 #define TAB 9
 #define SPACE 32
 #define ESC 27
+#define CTRLE 5
 
 #include "structuri.h"
 #include "functii_grafice.h"
@@ -159,6 +160,14 @@ void citesteSir()
             exit(0);
         }
 
+        else if(c == CTRLE){
+            strcpy(E.sir, "x*sin(cos(x123))*(pi*sqrt(x)<=10)+xAND FALSE -log[y](y^z)-z%2");
+            len = strlen(E.sir)+1;
+            outtextxy(Fereastra.W/2 - textwidth(E.sir)/2, Fereastra.H*4/16 - textheight(E.sir)/2, E.sir);
+            c_predecesor = 1;
+            continue;
+        }
+
         E.sir[len] = c;
         len++;
         i++;
@@ -202,7 +211,7 @@ void mainLoop()
     char c = (char)getch();
     if(c == SPACE)
     {
-        writeimagefile("ArboreExpr.bmp", Fereastra.W*0.2, Fereastra.H*0.2, Fereastra.W, Fereastra.H);
+        writeimagefile("ArboreExpr.bmp", Fereastra.W*0.2+2, Fereastra.H*0.2+2, Fereastra.W, Fereastra.H);
     }
     else if(c == ESC)
         exit(0);
