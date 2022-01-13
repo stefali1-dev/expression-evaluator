@@ -63,7 +63,6 @@ void proceseazaSir()
     extragereCuv(E.token);
     if(verifCorect())
     {
-        // -- afisare rezultat -- //
         formareArbore();
 
         cautaVar();
@@ -73,34 +72,34 @@ void proceseazaSir()
         float rezultat;
         rezultat = valoareExpresie(A);
 
+        line(Fereastra.W*0.2, Fereastra.H*0.2, Fereastra.W, Fereastra.H*0.2);
+
+        char s[] = "Pentru a salva imaginea arborelui apasa SPACE";
+        outtextxy(Fereastra.W*0.6 - textwidth(s)/2, Fereastra.H/8 - textheight(s)/2, s);
+
+
         if(EsteNaN(rezultat))
         {
-            char s[] = "Expresia este nedeterminata.";
-            outtextxy(Fereastra.W/2 - textwidth(s)/2, Fereastra.H/32 - textheight(s)/2, s);
+            strcpy(s, "Expresia este nedeterminata.");
         }
 
         else
         {
             if(DifInf(rezultat))
             {
-                char s[] = "Valoarea expresiei este ";
+                strcpy(s, "Valoarea expresiei este ");
                 char rez_arr[100];
                 sprintf(rez_arr, "%.2f", rezultat);
                 strcat(s, rez_arr);
-                //cout << "Valoarea expresiei este " << rezultat << ".";
-                outtextxy(Fereastra.W*0.6 - textwidth(s)/2, Fereastra.H/32 - textheight(s)/2, s);
             }
             else
             {
-                char s[] = "Valoare expresiei este infinita.";
-                outtextxy(Fereastra.W*0.6 - textwidth(s)/2, Fereastra.H/32 - textheight(s)/2, s);
-            }
-            line(Fereastra.W*0.2, Fereastra.H*0.2, Fereastra.W, Fereastra.H*0.2);
+                strcpy(s, "Valoare expresiei este infinita.");
 
-            char s[] = "Pentru a salva imaginea arborelui apasa SPACE";
-            outtextxy(Fereastra.W*0.6 - textwidth(s)/2, Fereastra.H/8 - textheight(s)/2, s);
+            }
 
         }
+        outtextxy(Fereastra.W*0.6 - textwidth(s)/2, Fereastra.H/32 - textheight(s)/2, s);
         afisareArbore(A);
     }
 
