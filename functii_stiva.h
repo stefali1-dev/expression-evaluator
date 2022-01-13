@@ -30,7 +30,6 @@ void pushOpr(stivaOpr &s, char val[])
 
         s.nrElemente = 1;
         s.varf = new nodOpr;
-        //s.varf -> val = elem;
         strcpy(s.varf->val, val);
         s.varf -> urm = NULL;
     }
@@ -42,7 +41,6 @@ void pushOpr(stivaOpr &s, char val[])
 
         s.nrElemente++;
 
-        //nod_nou -> val = elem;
         strcpy(nod_nou -> val, val);
         nod_nou -> urm = s.varf;
         s.varf = nod_nou;
@@ -91,28 +89,5 @@ void pushOpd(stivaOpd &s, anod* nod)
         nod_nou -> nod = nod;
         nod_nou -> urm = s.varf;
         s.varf = nod_nou;
-    }
-}
-
-//-----------functii de verificare -----------//
-
-void printOpr(stivaOpr Opr)
-{
-    while(Opr.varf)
-    {
-        cout << Opr.varf -> val << endl;
-        Opr.varf = Opr.varf -> urm;
-    }
-    cout << endl;
-}
-
-void printOpd(stivaOpd Opd)
-{
-    nodOpd *nod_nou;
-    nod_nou = Opd.varf;
-    while(nod_nou)
-    {
-        cout << nod_nou -> nod -> val << endl;
-        nod_nou = nod_nou ->urm;
     }
 }

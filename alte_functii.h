@@ -139,7 +139,7 @@ void extragereCuv(char token[][DIMEN_MAXIMA_TOKEN])
 {
     eliminareSpatii(E.sir);
     int len = strlen(E.sir);
-    //nu este foarte eficient sa iteram pe expresie de doua ori, trebuie imbunatatit
+
     for(int j=0, i=0; j <= len; j++)
     {
         int OpL = esteOperatorLogic(E.sir+j).len;
@@ -185,7 +185,6 @@ void extragereCuv(char token[][DIMEN_MAXIMA_TOKEN])
                             while(parPatrDeschise != parPatrInchise);
                             //am folosit acesti contori pentru a asigura, de exemplu, ca log[log[x]](y) va fi gasit ca greseala
                             //intrucat, dupa conventie, baza unui logaritm poate fi numai nu numar pozitiv, o constanta sau o singura variabila
-                            //altfel, programul dadea eroare cand introduceai ceva de genul
                         }
                     }
                     j = p+1;
@@ -519,7 +518,6 @@ bool verifCorect()
                 strcat(temp, E.token[i]);
                 strcat(temp, "'");
                 afiseazaFereastra(temp);
-                //cout << "-Eroare pe pozitia " << len << ": caracter ilegal '" << E.token[i][0] << "'" << endl;
             }
             else
             {
@@ -534,26 +532,22 @@ bool verifCorect()
                     strcat(temp, "' nu poate urma '");
                     strcat(temp, E.token[i+1]);
                     strcat(temp, "'");
-                    //cout << "-Eroare pe pozitia " << len+1 << ": dupa '" << token_nou << "' nu poate urma '" << E.token[i+1] << "'" << endl;
                 }
                 else if(tipToken(E.token[i]) == 5)
                 {
                     strcat(temp, ": lipseste argumentul functiei '");
                     strcat(temp, E.token[i]);
                     strcat(temp, "'");
-                    //cout << "-Eroare pe pozitia " << len+1 << ": lipseste argumentul functiei '" << E.token[i] << "'" << endl;
                 }
                 else if(!(strcmp(E.token[i], "NOT")))
                 {
                     strcat(temp, ": lipseste argumentul operatiei 'NOT'");
-                    //cout << "-Eroare pe pozitia " << len+1 << ": lipseste argumentul operatiei 'NOT'";
                 }
                 else
                 {
                     strcat(temp, ": lipseste un argument al operatiei '");
                     strcat(temp, E.token[i]);
                     strcat(temp, "'");
-                    //cout << "-Eroare pe pozitia " << len+1 << ": lipseste un argument al operatiei '" << E.token[i] << "'" << endl;
                 }
                 afiseazaFereastra(temp);
             }
@@ -565,7 +559,6 @@ bool verifCorect()
     {
         strcpy(temp, "-Eroare: o paranteza nu a fost inchisa");
         afiseazaFereastra(temp);
-        // cout << "-Eroare: o paranteza nu a fost inchisa" << endl;
         corect = false;
     }
     else if(nr > 1)
@@ -575,14 +568,12 @@ bool verifCorect()
         strcat(temp, poz_arr);
         strcat(temp, " paranteze nu au fost inchise");
         afiseazaFereastra(temp);
-        // cout << "-Eroare: " << nr << " paranteze nu au fost inchise" << endl;
         corect = false;
     }
     else if(nr < 0)
     {
         strcpy(temp, "-Eroare: sunt prea multe paranteze de tip ')'");
         afiseazaFereastra(temp);
-        //cout << "-Eroare: sunt prea multe paranteze de tip ')'";
         corect = false;
     }
     return corect;

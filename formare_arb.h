@@ -16,7 +16,6 @@ void formareArbore()
         // este operand
         if (esteNumar(E.token[i]) || esteVar(E.token[i])|| esteConst(E.token[i]))
         {
-            //cout << E.tokenArr[i] << " opd\n";
             anod *nod_nou;
             nod_nou = new anod;
             strcpy(nod_nou -> val, E.token[i]);
@@ -29,13 +28,11 @@ void formareArbore()
         {
             if(E.token[i][0] == '(')
             {
-                //cout << "paranteza\n";
                 pushOpr(Opr, "(");
             }
 
             else
             {
-                //cout << E.tokenArr[i] << " opr\n";
 
                 while ((Opr.varf != NULL) && !(strchr("()",Opr.varf -> val[0])) &&
                         prioritate(Opr.varf -> val) >= prioritate(E.token[i]))
@@ -348,16 +345,6 @@ float valoareExpresie(arbore A)
 }
 
 //-------------- functii pt desenare arbore -----------//
-
-void parcurgereInPreordine(arbore A)
-{
-    if (A != NULL)
-    {
-        cout<<A->val<<", ";
-        parcurgereInPreordine(A->st);
-        parcurgereInPreordine(A->dr);
-    }
-}
 
 struct Punct
 {

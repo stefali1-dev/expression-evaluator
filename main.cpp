@@ -134,7 +134,7 @@ void citesteSir()
                 continue;
         }
 
-        if((int)c == BACKSPACE)
+        if(c == BACKSPACE)
         {
             if(leftSpace > textwidth(c_arr))
             {
@@ -148,14 +148,14 @@ void citesteSir()
             continue;
         }
 
-        if((int)c == TAB)
+        if(c == TAB)
         {
             reset();
             initializareFrontPage();
             break;
         }
 
-        else if((int)c == ESC){
+        else if(c == ESC){
             exit(0);
         }
 
