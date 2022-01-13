@@ -15,6 +15,8 @@ float Logaritm(float x)
 
 float LogaritmBazaB(float x, float b)
 {
+    if(b == 0 || b == 1)
+        return NAN;
     return Impartit(Logaritm(x), Logaritm(b));
 }
 
