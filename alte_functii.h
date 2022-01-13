@@ -96,6 +96,15 @@ float esteConst(char s[])
     return 0;
 }
 
+int esteConstLogica(char s[])
+{
+    if(strcmp(s, "TRUE") == 0 || strcmp(s, "true") == 0)
+        return 1;
+    if(strcmp(s, "FALSE") == 0 || strcmp(s, "false") == 0)
+        return 2;
+    return 0;
+}
+
 bool esteVar(char s[])
 {
     if(s[0] == '_')
@@ -139,7 +148,6 @@ void extragereCuv(char token[][DIMEN_MAXIMA_TOKEN])
 {
     eliminareSpatii(E.sir);
     int len = strlen(E.sir);
-
     for(int j=0, i=0; j <= len; j++)
     {
         int OpL = esteOperatorLogic(E.sir+j).len;
@@ -285,7 +293,7 @@ bool esteExpresieSimpla(char s[])
         E.lungime = lungime_aux;
         return false;
     }
-    if(esteFunctie(token_aux[0]))
+    if(esteFunctie(token_aux[0]) || esteConstLogica(token_aux[0]))
     {
         strcpy(E.sir, sir_aux);
         E.lungime = lungime_aux;
@@ -467,7 +475,6 @@ bool verifCorect()
             {
                 strcpy(temp, "Expresia este incorecta, avand urmatoarele greseli sintactice: ");
                 afiseazaFereastra(temp);
-                // cout << "Expresia este incorecta, avand urmatoarele greseli sintactice: " << endl;
                 corect = false;
             }
             if(ok_baza == 1)
@@ -479,7 +486,6 @@ bool verifCorect()
                 strcat(temp, poz_arr);
                 strcat(temp, ": baza unui logaritm poate fi numai un numar pozitiv, constanta sau o singura variabila");
                 afiseazaFereastra(temp);
-                // cout << "-Eroare pe pozitia " << len - len_baza + 1 << ": baza unui logaritm poate fi numai un numar pozitiv, constanta sau o singura variabila" << endl;
             }
             else
             {
@@ -490,7 +496,6 @@ bool verifCorect()
                 strcat(temp, poz_arr);
                 strcat(temp, ": ordinul unui radical poate fi numai un numar pozitiv, constanta sau o singura variabila");
                 afiseazaFereastra(temp);
-                // cout << "-Eroare pe pozitia " << len - len_baza + 1 << ": ordinul unui radical poate fi numai un numar pozitiv, constanta sau o singura variabila" << endl;
             }
         }
         ok_baza = 0;
@@ -573,7 +578,7 @@ bool verifCorect()
     else if(nr < 0)
     {
         strcpy(temp, "-Eroare: sunt prea multe paranteze de tip ')'");
-        afiseazaFereastra(temp);
+        afiseazaFereastra(temp);;
         corect = false;
     }
     return corect;
@@ -616,6 +621,16 @@ void inserareVar(char s[], char numar[])
         L.var[L.nrElemente-1].valoare = phi;
         return;
     }
+    if(!strcmp(numar, "true") || !strcmp(numar, "TRUE"))
+    {
+        L.var[L.nrElemente-1].valoare = 1;
+        return;
+    }
+    if(!strcmp(numar, "false") || !strcmp(numar, "FALSE"))
+    {
+        L.var[L.nrElemente-1].valoare = 0;
+        return;
+    }
     L.var[L.nrElemente-1].valoare = atof(numar);
 }
 
@@ -628,7 +643,13 @@ void cautaVar()
     for(int i = 0; i < E.lungime; i++)
     {
         strcpy(s, E.token[i]);
-        if(esteVar(s) && !(dejaExista(s)))
+        if(esteConstLogica(s))
+        {
+            if(esteConstLogica(s) == 1)
+                inserareVar(s, "1");
+            else inserareVar(s, "0");
+        }
+        else if(esteVar(s) && !(dejaExista(s)))
         {
             strcpy(temp, "Introduceti valoarea");
             afiseazaFereastra(temp);
@@ -663,6 +684,10 @@ void cautaVar()
             char baza[100];
             int j, n;
             j = auxf-16;
+            // daca auxf == 20 sau 21, atunci avem E.token[] este fie log[...] fie root[...]
+            // in momentul de fata, vrem sa salvam baza/ordinul log./rad. in baza[] si incepem
+            // sa salvam de la E.token[auxf-16], adica E.token[4] sau E.token[5], care coincide, intrucat:
+            // "log[" -> 4 caractere, "root[" -> 5 caractere
             n = 0;
             do
             {
@@ -670,6 +695,12 @@ void cautaVar()
             }
             while(s[j] != ']');
             baza[n++] = '\0';
+            if(esteConstLogica(baza))
+            {
+                if(esteConstLogica(baza) == 1)
+                    inserareVar(baza, "1");
+                else inserareVar(baza, "0");
+            }
             if(esteVar(baza) && !(dejaExista(baza)))
             {
                 strcpy(temp, "Introduceti valoarea");
