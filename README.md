@@ -1,5 +1,5 @@
 # Expression Evalator
-A C/C++ app that displays the visualisation of the binary tree associated with a mathematical expression given as input.
+A C app that displays the visualisation of the binary tree associated with a mathematical expression given as input.
 
 An example:
 
